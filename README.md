@@ -1,2 +1,2 @@
 # CrococryptFile
-An encryption tool for creating file archives
+An tool for creating encrypted file archives
