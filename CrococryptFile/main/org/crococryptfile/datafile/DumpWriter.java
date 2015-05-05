@@ -69,7 +69,7 @@ public class DumpWriter {
 		src = new File(dir);
 		
 		if(src.isDirectory()){
-			final int base = src.getParent().length();
+			final int base = getParentLen(src);
 			src.listFiles(new FileFilter() {
 				@Override
 				public boolean accept(File f) {
@@ -92,7 +92,7 @@ public class DumpWriter {
 		}
 		else{
 			if(src.isFile()){
-				addFile(src, src.getParent().length());
+				addFile(src, getParentLen(src));
 			}
 		}
 	}
@@ -156,6 +156,12 @@ public class DumpWriter {
 	private boolean active(){
 		if(stat == null) return true;
 		return stat.isActive();
+	}
+	
+	private final int getParentLen(File f){
+		String tmp = f.getParent();
+		if(tmp.endsWith(File.separator)) return tmp.length();
+		else return tmp.length() + 1;
 	}
 
 	
