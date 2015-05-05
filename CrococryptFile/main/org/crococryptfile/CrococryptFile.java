@@ -5,6 +5,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.crypto.Cipher;
+
 import org.crococryptfile.ConsoleOptions.ConsoleOptions_Params;
 import org.crococryptfile.datafile.CrocoFilereader;
 import org.crococryptfile.datafile.CrocoFilewriter;
@@ -32,6 +34,7 @@ import org.crococryptfile.ui.gui.SimpleDialogs;
 import org.crococryptfile.ui.gui.pages.CAPI_DNList;
 import org.crococryptfile.ui.gui.pages.Decrypt;
 import org.crococryptfile.ui.gui.pages.Encrypt;
+import org.crococryptfile.ui.gui.pages.JCEPolicyError;
 import org.crococryptfile.ui.resources._T;
 import org.fhissen.callbacks.SUCCESS;
 import org.fhissen.callbacks.SimpleCallback;
@@ -59,6 +62,21 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 	}
 	
 	public static final void launch(CrococryptParameters params){
+		boolean jceok = true;
+		try {
+			if(Cipher.getMaxAllowedKeyLength("AES") < 256) jceok = false;
+		} catch (Exception e) {
+			jceok = false;
+			e.printStackTrace();
+		}
+		if(!jceok){
+			CPrint.error(_T.Launcher_jcepolicyerr);
+			if(UICenter.isGUI()){
+				PageLauncher.launch(new JCEPolicyError());
+			}
+			return;
+		}
+		
 		if(System.console() != null && params == null)
 			System.out.println("You can use the commandline interface by starting with -c");
 		
