@@ -22,15 +22,11 @@ public class DumpWriter {
 	private Suite icroc;
 	private Index index;
 	private File outputfile = null;
-	private boolean useabsolute = false;
+
 	private StatusUpdate stat;
 
 	private final byte[] buffer = new byte[1024 * 1024];
 
-	public DumpWriter(Suite croco, Index index, boolean useAbsolutePaths){
-		this(croco, index);
-		useabsolute = useAbsolutePaths; 
-	}
 
 	public DumpWriter(Suite croco, Index index){
 		this.icroc = croco;
@@ -164,30 +160,10 @@ public class DumpWriter {
 
 	
 	private final String saniPath(String tmp, int baselen){
-		if(useabsolute){
-			if(tmp.startsWith("\\\\")){
-				int i = tmp.indexOf("\\", 2);
-				if(i > 0){
-					tmp = tmp.substring(i + 1, tmp.length());
-				}
-				return tmp;
-			}
-			else if(tmp.startsWith("//")){
-				int i = tmp.indexOf("/", 2);
-				if(i > 0){
-					tmp = tmp.substring(i + 1, tmp.length());
-				}
-				return tmp;
-			}
-			else{
-				if(OSDetector.isWin())
-					return tmp.substring(3, tmp.length());
-				return tmp.substring(1, tmp.length());
-			}
+		if(OSDetector.isWin()){
+			return tmp.substring(baselen, tmp.length()).replace('\\', '/');
 		}
-		else{
-			return tmp.substring(baselen, tmp.length());
-		}
+		return tmp.substring(baselen, tmp.length());
 	}
 	
 	
