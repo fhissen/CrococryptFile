@@ -1,5 +1,9 @@
 package org.fhissen.crypto;
 
+/*
+ * This class is based on the Bouncy Castle ((c) http://www.bouncycastle.org/) Java class org.bouncycastle.crypto.generators.PKCS5S2ParametersGenerator
+ * See http://www.bouncycastle.org/ for the license of BC
+ */
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
