@@ -86,7 +86,7 @@ public class PasswordInputdialog {
 		
 		thiswindow.pack();
 		
-		thiswindow.setLocationRelativeTo(null);
+		thiswindow.setLocationRelativeTo(mainwindow);
 		thiswindow.setVisible(true);
 		
 

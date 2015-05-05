@@ -141,7 +141,7 @@ public class PasswordCreatedialog {
 		
 		thiswindow.pack();
 		
-		thiswindow.setLocationRelativeTo(null);
+		thiswindow.setLocationRelativeTo(mainwindow);
 		thiswindow.setVisible(true);
 		
 		thiswindow.addWindowListener(new WindowAdapter() {
