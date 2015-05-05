@@ -66,7 +66,7 @@ public class ProgressWindow {
 		Dimension thesize = new Dimension(jp.getWidth(), jp.getHeight() + jl.getHeight());
 		jd.getContentPane().setPreferredSize(thesize);
 		jd.setSize(thesize);
-		jd.setLocationRelativeTo(null);
+		jd.setLocationRelativeTo(parent);
 		
 		model.remove(0);
 
