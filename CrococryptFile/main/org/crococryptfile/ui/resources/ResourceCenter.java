@@ -34,8 +34,8 @@ public class ResourceCenter {
 	
 	public static final String TITLE_VERSION = TITLE + " " + VERSION;
 	
-	public static final Image logo16, logo32, logo48, logo64;
 	public static final ArrayList<Image> icons = new ArrayList<>();
+	public static Image logo16, logo32, logo48, logo64;
 
 	static{
 		String tmp = ResourceCenter.getAbsoluteRes("x").toString();
@@ -43,15 +43,19 @@ public class ResourceCenter {
 		ABSOLUTE_HTML = BASE + PATH_HTML;
 		ABSOLUTE_IMAGES = BASE + PATH_IMAGES;
 		
-		logo16 = new ImageIcon(getAbsoluteRes(PATH_IMAGES + "logo16.png")).getImage();
-		logo32 = new ImageIcon(getAbsoluteRes(PATH_IMAGES + "logo32.png")).getImage();
-		logo48 = new ImageIcon(getAbsoluteRes(PATH_IMAGES + "logo48.png")).getImage();
-		logo64 = new ImageIcon(getAbsoluteRes(PATH_IMAGES + "logo64.png")).getImage();
+		try {
+			logo16 = new ImageIcon(getAbsoluteRes(PATH_IMAGES + "logo16.png")).getImage();
+			logo32 = new ImageIcon(getAbsoluteRes(PATH_IMAGES + "logo32.png")).getImage();
+			logo48 = new ImageIcon(getAbsoluteRes(PATH_IMAGES + "logo48.png")).getImage();
+			logo64 = new ImageIcon(getAbsoluteRes(PATH_IMAGES + "logo64.png")).getImage();
 
-		icons.add(ResourceCenter.logo64);
-		icons.add(ResourceCenter.logo32);
-		icons.add(ResourceCenter.logo48);
-		icons.add(ResourceCenter.logo16);
+			icons.add(ResourceCenter.logo64);
+			icons.add(ResourceCenter.logo32);
+			icons.add(ResourceCenter.logo48);
+			icons.add(ResourceCenter.logo16);
+		} catch (Throwable t) {
+			System.err.println(t.getLocalizedMessage());
+		}
 	}
 	
 	public static final String getAbsoluteBase(){
@@ -97,34 +101,38 @@ public class ResourceCenter {
 	
 	static{
 		try {
-			String decodedPath = URLDecoder.decode(THECLASS.getProtectionDomain().getCodeSource().getLocation().getPath(), Codes.UTF8);
-			whereami = new File(decodedPath).getParentFile();
-
-			File lang = new File(whereami, "lang");
-			if(lang.exists() && lang.isFile()){
-				String tmp = FileUtils.readFile(lang);
-				if(tmp != null && tmp.length() > 0){
-					tmp = tmp.trim();
-					locale = new Locale(tmp);
-				}
-			}
-			if(locale == null) locale = Locale.ENGLISH;
-			locale_code = locale.getLanguage();
-			
 			try {
-				Locale.setDefault(locale);
-			} catch (Exception e) {
-				Locale.setDefault(Locale.ENGLISH);
-			}
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+				String decodedPath = URLDecoder.decode(THECLASS.getProtectionDomain().getCodeSource().getLocation().getPath(), Codes.UTF8);
+				whereami = new File(decodedPath).getParentFile();
 
-		datafolder = OSFolders.makeUserAppfolder(TITLE);
-		
-		settings = new KeyvalueFile(new File(datafolder, "settings"));
-		settings.load();
+				File lang = new File(whereami, "lang");
+				if(lang.exists() && lang.isFile()){
+					String tmp = FileUtils.readFile(lang);
+					if(tmp != null && tmp.length() > 0){
+						tmp = tmp.trim();
+						locale = new Locale(tmp);
+					}
+				}
+				if(locale == null) locale = Locale.ENGLISH;
+				locale_code = locale.getLanguage();
+				
+				try {
+					Locale.setDefault(locale);
+				} catch (Exception e) {
+					Locale.setDefault(Locale.ENGLISH);
+				}
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
+			datafolder = OSFolders.makeUserAppfolder(TITLE);
+			
+			settings = new KeyvalueFile(new File(datafolder, "settings"));
+			settings.load();
+		} catch (Throwable t) {
+			System.err.println(t.getLocalizedMessage());
+		}
 	}
 	
 	public static final File getDatafolder(){

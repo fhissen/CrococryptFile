@@ -26,7 +26,11 @@ public class KeygenUtils {
 			e.printStackTrace();
 		}
 		
-		hasgui = !GraphicsEnvironment.isHeadless();
+		try {
+			hasgui = !GraphicsEnvironment.isHeadless();
+		} catch (Throwable t) {
+			System.err.println(t.getLocalizedMessage());
+		}
 	}
 	
 	public SecureRandom makeSR(){
@@ -161,7 +165,7 @@ public class KeygenUtils {
 			winner = Integer.MIN_VALUE;
 			return ret;
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.err.println(e.getLocalizedMessage());
 			return new byte[]{-1};
 		}
 	}

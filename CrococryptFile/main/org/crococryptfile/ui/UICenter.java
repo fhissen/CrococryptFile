@@ -25,7 +25,15 @@ public class UICenter {
 		INITIALIZED = true;
 		
 		try {
-			if(GraphicsEnvironment.isHeadless()){
+			boolean headless = false;
+			try {
+				headless = GraphicsEnvironment.isHeadless();
+			} catch (Throwable t) {
+				headless = true;
+				System.err.println(t.getLocalizedMessage());
+			}
+			
+			if(headless){
 				CONSOLE = true;
 			}
 			else{
@@ -35,7 +43,7 @@ public class UICenter {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		if(OSDetector.isMac()){
 			System.setProperty("apple.laf.useScreenMenuBar", "true");
 			System.setProperty("com.apple.mrj.application.apple.menu.about.name", ResourceCenter.TITLE);
