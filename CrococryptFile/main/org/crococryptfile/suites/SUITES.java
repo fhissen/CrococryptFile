@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-import org.crococryptfile.datafile.capirsaaes.CAPIRSAAESMain;
-import org.crococryptfile.datafile.pbeaes.PBE1AESMain;
+import org.crococryptfile.suites.capirsaaes.CAPIRSAAESMain;
+import org.crococryptfile.suites.pbeaes.PBE1AESMain;
 import org.crococryptfile.ui.resources._T;
 import org.fhissen.utils.StreamMachine;
 import org.fhissen.utils.os.OSDetector;

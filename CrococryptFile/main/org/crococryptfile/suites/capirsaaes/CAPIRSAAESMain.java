@@ -1,4 +1,4 @@
-package org.crococryptfile.datafile.capirsaaes;
+package org.crococryptfile.suites.capirsaaes;
 
 import java.io.InputStream;
 import java.io.OutputStream;

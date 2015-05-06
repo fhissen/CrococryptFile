@@ -3,8 +3,8 @@ package org.crococryptfile.ui.gui.pages;
 import java.util.HashMap;
 
 import org.crococryptfile.Settings;
-import org.crococryptfile.datafile.capirsaaes.CAPIRSAUtils;
-import org.crococryptfile.datafile.capirsaaes.CAPIRSAUtils.CAPIRSAAliases;
+import org.crococryptfile.suites.capirsaaes.CAPIRSAUtils;
+import org.crococryptfile.suites.capirsaaes.CAPIRSAUtils.CAPIRSAAliases;
 import org.crococryptfile.ui.gui.Page;
 import org.crococryptfile.ui.gui.PageLauncher;
 import org.crococryptfile.ui.resources.ResourceCenter;

@@ -1,4 +1,4 @@
-package org.crococryptfile.datafile.pbeaes;
+package org.crococryptfile.suites.pbeaes;
 
 import javax.crypto.Cipher;
 import javax.crypto.Mac;

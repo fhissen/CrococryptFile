@@ -1,4 +1,4 @@
-package org.crococryptfile.datafile.pbeaes;
+package org.crococryptfile.suites.pbeaes;
 
 import java.io.InputStream;
 import java.io.OutputStream;

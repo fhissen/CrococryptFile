@@ -1,4 +1,4 @@
-package org.crococryptfile.datafile.pbeaes;
+package org.crococryptfile.suites.pbeaes;
 
 import org.fhissen.crypto.CryptoUtils;
 
