@@ -192,6 +192,16 @@ public class ByteUtils {
 		return ret;
 	}
 	
+	public static final int b2i(byte b){
+		if(b >= 0) return b;
+		return b + 256;
+	}
+	
+	public static final byte i2b(int i){
+		if(i > 128) return (byte)(i - 256);
+		return (byte) i;
+	}
+	
 	public static final byte[] copyTogetherNwipeO(Object... arr){
 		byte[][] b = new byte[arr.length][];
 		

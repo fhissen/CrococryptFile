@@ -81,6 +81,31 @@ public class StreamCopy {
 		}
 	}
 	
+	public static final byte[] readBytes(InputStream is){
+		if(is == null) return null;
+
+		byte[] thearray = new byte[1024 * 16];
+		ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
+		int b = 0;
+		
+		while (true){
+			try {
+				b = is.read(thearray);
+				if (b>=0){
+					baos.write(thearray, 0, b);
+				}
+				else{
+					is.close();
+					break;
+				}
+			} catch (Exception e) {
+				return null;
+			}			
+		}
+
+		return baos.toByteArray();
+	}
+	
 	public static final String readUTF8String(InputStream in){
 		ByteArrayOutputStream baos = new ByteArrayOutputStream(); 
 
@@ -108,5 +133,15 @@ public class StreamCopy {
 				if(in != null) in.close();
 			} catch (IOException e) {}
 		}
+	}
+	
+	public static final boolean writeBytes(OutputStream os, byte[] bytes){
+		try {
+			os.write(bytes);
+			os.flush();
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
 	}
 }
