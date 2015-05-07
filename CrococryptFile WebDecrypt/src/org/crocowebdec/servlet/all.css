@@ -1,0 +1,91 @@
+img{
+border: 0px;
+}
+body {
+margin: 0;
+padding: 0;
+font-family: sans-serif;
+overflow-y: scroll;
+overflow-x: hidden;
+}
+html, body {
+height: 100%;
+}
+
+#content {
+margin-left: auto;
+margin-right: auto;
+border: none;
+height: 100%;
+width: 100%;
+display: table;
+text-align: center;
+}
+#wrap{
+display: table-cell;
+height: 100%;
+vertical-align: middle;
+border: 0px solid white;
+}
+h1 {
+font-size: 1.3em;
+padding-top: 0px;
+margin-top: 0px;
+}
+h2 {
+font-size: 1.1em;
+padding-top: 0.2em;
+}
+h3 {
+font-size: 1.05em;
+padding-top: 0.1em;
+}
+h1, h2, h3, h4, h5 {
+font-weight: normal;
+color: #000;
+text-shadow: 1px 1px 1px #aaa ;
+}
+p, ul, ol, dl {
+line-height: 1.4em;
+font-size: 0.9em;
+}
+tr, td, th{
+padding: 5px;
+border-collapse: collapse;
+text-align: center;
+}
+th{
+padding: 5px;
+border-collapse: collapse;
+background: #eee;
+}
+table{
+border-collapse: collapse;
+margin-left:auto; 
+margin-right:auto;
+border: 1px solid lightgray;
+}
+a{
+color: black;
+}
+#footer {
+margin: 0;
+padding: 0;
+margin-top: 10px;
+}
+.footertext{
+margin: 0;
+padding: 0;
+color: black;
+text-shadow: 1px 1px 1px #aaa ;
+font-size: 0.9em;
+}
+.footertext a{
+margin: 0;
+padding: 0;
+text-decoration: underline;
+color: black;
+}
+.footertext a:hover{
+color: blue;
+}

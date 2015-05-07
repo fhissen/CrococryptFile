@@ -1,0 +1,88 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"/>
+<link rel="stylesheet" href="/res/all.css" type="text/css"/>
+<title>CrococryptFile WebDecrypt</title>
+</head>
+<body style="overflow:hidden;">
+
+<script type="text/javascript">
+function checkForm(){
+	var pw = document.getElementById("form_password");
+	if(pw.value.length < 8){
+		alert("The password must be at least 8 characters long.");
+		return;
+	}
+	
+	var form = document.getElementsByTagName("form")[0];
+	form.submit();
+	
+	pw.value= "";
+}
+
+function inputKeypress(event){
+    if(event.keyCode == 13) {
+        event.preventDefault();
+        checkForm();
+        return false;
+    }
+    
+    return true;
+}
+
+</script>
+
+<div id="content">
+
+<div id="wrap">
+<form method="post" action="/download" enctype="multipart/form-data" style="text-align: center;" autocomplete="off">
+<table style="border: 0px solid white; background: lightgray;border-radius: 5px;">
+<tr>
+<td colspan="2" style="font-weight: bold; text-align: left; padding-bottom: 25px;">
+<span style="text-shadow: 1px 1px 2px #777;">CrococryptFile WebDecrypt</span>
+</td>
+</tr>
+
+<tr>
+<td style="text-align: left;">
+Password:
+</td>
+<td style="text-align: left;">
+<input autofocus="autofocus" name="password" id="form_password" type="password" onkeypress="return inputKeypress(event);" style="min-height: 25px; width: 98%;" autocomplete="off"/>
+</td>
+</tr>
+
+<tr>
+<td style="text-align: left;">
+File:
+</td>
+<td style="text-align: left;">
+<input name="file" id="form_file" type="file" style="min-height: 25px; max-width: 200px;"/>
+</td>
+</tr>
+
+<tr style="border: 0px solid lightgray; padding-top: 20px;">
+<td colspan="2" style="border: 0px solid lightgray; padding-top: 25px;">
+<input type="button" onclick="checkForm();" value="Decrypt" style="height: 50px; font-size: 1.2em; width: 100%;" />
+</td>
+</tr>
+</table>
+</form>
+
+<div id="footer">
+<span class="footertext">
+<a href="http://frankhissen.de/crococryptfile-en-frank-hissen-it-software.html" target="_blank">About</a>
+|
+<a href="http://frankhissen.de/privacy-frank-hissen-it.html" target="_blank">Privacy</a>
+|
+<a href="http://frankhissen.de/legal-notice-frank-hissen-it.html" target="_blank">Legal</a>
+</span>
+</div>
+
+</div>
+</div>
+
+</body>
+</html>
