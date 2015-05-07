@@ -203,26 +203,39 @@ public class CrocoWebDecryptor extends HttpServlet{
 								baos.reset();
 								baos.close();
 								h_nocache(resp);
-								
+
+								Suite pbe = null;
+								DumpHeader dh = null;
+								CountingBAInputStream thecis = null;
+								try {
+									pbe = Suite.getInitializedInstance(SUITES.PBE1_AES, SuiteMODE.DECRYPT, SuitePARAM.password, pass.toCharArray());
+									thecis = new CountingBAInputStream(cache);
+									InputStream theis = thecis.getIS();
+									StreamMachine.read(theis, SUITES.MAGICNUMBER_LENGTH);
+									pbe.readFrom(theis);
+									dh = new DumpHeader(pbe);
+									dh.readFrom(theis);
+									if(!dh.isValid()){
+					        			h_errorredirect(resp);
+					        			return;
+									}
+									theis.close();
+								} catch (Exception e) {
+				        			h_errorredirect(resp);
+				        			return;
+								}
+
 								resp.setStatus(HttpServletResponse.SC_OK);
 								resp.setContentType("application/octet-stream");
 								resp.setHeader("Content-Disposition", "attachment; filename=\"DecryptArchive.zip\"");
 								try {
 									ItemZipper zip = new ItemZipper(resp.getOutputStream());
-									Suite pbe = Suite.getInitializedInstance(SUITES.PBE1_AES, SuiteMODE.DECRYPT, SuitePARAM.password, pass.toCharArray());
-									CountingBAInputStream thecis = new CountingBAInputStream(cache);
-									InputStream theis = thecis.getIS();
-									StreamMachine.read(theis, SUITES.MAGICNUMBER_LENGTH);
-									pbe.readFrom(theis);
-									DumpHeader dh = new DumpHeader(pbe);
-									dh.readFrom(theis);
-									theis.close();
 									
 									DumpReaderStreamonly rf = new DumpReaderStreamonly(pbe.headerLength() + dh.headerLength() + SUITES.MAGICNUMBER_LENGTH);
 									rf.main(thecis, zip, pbe, dh);
 									zip.close();
 								} catch (Exception e) {
-				        			h_errorredirect(resp);
+				        			System.err.println("UNEXPECTED ERROR: " + e.getLocalizedMessage());
 								}
 						        
 							    return;
