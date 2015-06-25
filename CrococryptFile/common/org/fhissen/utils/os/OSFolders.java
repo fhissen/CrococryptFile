@@ -32,12 +32,17 @@ public class OSFolders {
 		}
 	}
 	
-	public static final File makeUserAppfolder(String keyword){
+	public static final File getUserAppfolder(String keyword){
 		File base = getUserBasefolder();
 		if(!OSDetector.isWin()){
 			keyword = "." + keyword.toLowerCase();
 		}
 		base = new File(base, keyword);
+		return base;
+	}
+	
+	public static final File makeUserAppfolder(String keyword){
+		File base = getUserAppfolder(keyword);
 		if(!base.exists()) base.mkdir();
 		return base;
 	}

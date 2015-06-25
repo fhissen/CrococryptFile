@@ -38,9 +38,15 @@ public class PasswordInputdialog {
 	}
 	
 	public void main(final SimpleCallback<char[]> sr) {
+		main(sr, null);
+	}
+	
+	public void main(final SimpleCallback<char[]> sr, String title) {
+		if(title == null) title = _T.PasswordDecrypt_title.val();
+		
 		if(mainwindow == null){
 			JFrame jf = new JFrame();
-			jf.setTitle(_T.PasswordDecrypt_title.val());
+			jf.setTitle(title);
 			jf.setResizable(false);
 	    	jf.setIconImages(ResourceCenter.icons);
 			jf.getContentPane().setLayout(new FlowLayout()); 
@@ -50,7 +56,7 @@ public class PasswordInputdialog {
 		else{
 			JDialog jd = new JDialog(mainwindow);
 			jd.setModal(true);
-			jd.setTitle(_T.PasswordDecrypt_title.val());
+			jd.setTitle(title);
 			jd.setResizable(false);
 			jd.setIconImages(ResourceCenter.icons);
 			jd.getContentPane().setLayout(new FlowLayout()); 

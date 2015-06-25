@@ -26,6 +26,8 @@ public enum _T {
 	DecryptWindow_unknownfile,
 	DecryptWindow_wrongversion,
 	Decrypt_Start,
+	EncryptListChoose,
+	EncryptListChooseMulti,
 	EncryptWindow_EncryptedFile,
 	EncryptWindow_Multidir,
 	EncryptWindow_Multifile,
@@ -68,8 +70,17 @@ public enum _T {
 	PasswordEncrypt_retype,
 	PasswordEncrypt_title,
 	Password_caps,
+	PGP_errorNokey,
+	PGP_errorSeckeyfailed,
+	PGP_nokeyfile,
+	PGP_novalidprivkey,
+	PGP_privkeypasstitle,
+	PGP_selprivkey,
+	PGP_selprivkeyTitle,
+	PGP_selpubkey,
 	Suite_CAPI_RSAAES,
 	Suite_PBE1_AES,
+	Suite_PGP_AES,
 
 	;
 	

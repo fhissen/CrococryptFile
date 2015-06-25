@@ -172,7 +172,8 @@ public class ByteUtils {
 		JTYPE type = null;
 		try {
 			type = JTYPE.valueOf(obj.getClass().getSimpleName());
-		} catch (Exception e) {}
+		} catch (Exception e) {
+		}
 		return type;
 	}
 	

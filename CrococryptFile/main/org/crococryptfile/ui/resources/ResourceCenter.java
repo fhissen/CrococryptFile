@@ -29,8 +29,8 @@ public class ResourceCenter {
 	private static final String BASE, ABSOLUTE_HTML, ABSOLUTE_IMAGES;
 
 	public static final String TITLE = "CrococryptFile";
-	public static final String VERSION = "1.0";
-	public static final String VERSIONCODE = "1";
+	public static final String VERSION = "1.2";
+	public static final String VERSIONCODE = "2";
 	
 	public static final String TITLE_VERSION = TITLE + " " + VERSION;
 	

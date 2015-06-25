@@ -6,6 +6,7 @@ import org.crococryptfile.Settings;
 import org.crococryptfile.suites.capirsaaes.CAPIRSAUtils;
 import org.crococryptfile.suites.capirsaaes.CAPIRSAUtils.CAPIRSAAliases;
 import org.crococryptfile.ui.gui.Page;
+import org.crococryptfile.ui.gui.PageActionparameters;
 import org.crococryptfile.ui.gui.PageLauncher;
 import org.crococryptfile.ui.resources.ResourceCenter;
 import org.crococryptfile.ui.resources._T;
@@ -46,7 +47,7 @@ public class CAPI_DNList extends Page{
 	}
 	
 	@Override
-	protected void action(PageLauncher pl, Object action, HashMap<Object, String> params) {
+	protected void action(PageLauncher pl, Object action, PageActionparameters params) {
 		if(params == null || action == null || !action.equals("ok")) return;
 		
 		if(dnlist == null || dnlist.aliases.size() == 0){
@@ -54,7 +55,7 @@ public class CAPI_DNList extends Page{
 			return;
 		}
 		
-		int i = _s2i(params.get("alias"));
+		int i = _s2i(params.getString("alias"));
 		if(i >= 0){
 			String lastdnalias = ResourceCenter.getSettings().get(Settings.lastcapidn);
 			if(!dnlist.aliases.get(i).equals(lastdnalias)){

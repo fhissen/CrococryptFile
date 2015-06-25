@@ -13,6 +13,7 @@ import org.crococryptfile.ui.CbIEncrypt;
 import org.crococryptfile.ui.UICenter;
 import org.crococryptfile.ui.gui.FileSelectdialog;
 import org.crococryptfile.ui.gui.Page;
+import org.crococryptfile.ui.gui.PageActionparameters;
 import org.crococryptfile.ui.gui.PageLauncher;
 import org.crococryptfile.ui.resources.ResourceCenter;
 import org.crococryptfile.ui.resources._T;
@@ -117,7 +118,7 @@ public class Encrypt extends Page{
 	}
 	
 	@Override
-	protected void action(PageLauncher pl, Object action, HashMap<Object, String> params) {
+	protected void action(PageLauncher pl, Object action, PageActionparameters params) {
 		OPT opt = (OPT) action;
 		if(opt == null) opt = OPT.encrypt;
 		
@@ -128,7 +129,7 @@ public class Encrypt extends Page{
 			return;
 
 		case encrypt:
-			String fstring = params.get(OPT.file);
+			String fstring = params.getString(OPT.file);
 			if(fstring == null) return;
 			File tmpdst = new File(fstring);
 			File sanidst = sanitize(tmpdst);
@@ -138,7 +139,7 @@ public class Encrypt extends Page{
 				return;
 			}
 
-			SUITES suitex = SystemUtils.s2E(params.get(OPT.provider), SUITES.class);
+			SUITES suitex = SystemUtils.s2E(params.getString(OPT.provider), SUITES.class);
 			if(suitex != null && !suitex.name().equals(ResourceCenter.getSettings().get(Settings.lastprovider))){
 				ResourceCenter.getSettings().set(Settings.lastprovider, suitex.name());
 				ResourceCenter.getSettings().save();
@@ -164,14 +165,9 @@ public class Encrypt extends Page{
 				if(retval != JOptionPane.YES_OPTION) return;
 			}
 			
-			switch (suitex) {
-			case PBE1_AES:
-				cb.callbackEncrypt(this, sanidst, suitex);
-				return;
-			case CAPI_RSAAES:
-				cb.callbackEncrypt(this, sanidst, suitex);
-				return;
-			}
+			
+			cb.callbackEncrypt(this, sanidst, suitex);
+			return;
 		}
 
 		UICenter.message("Unknown Operation");

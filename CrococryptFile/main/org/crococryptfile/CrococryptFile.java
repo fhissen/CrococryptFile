@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import javax.crypto.Cipher;
 
+import org.bouncycastle.util.encoders.Hex;
 import org.crococryptfile.ConsoleOptions.ConsoleOptions_Params;
 import org.crococryptfile.datafile.CrocoFilereader;
 import org.crococryptfile.datafile.CrocoFilewriter;
@@ -23,6 +24,7 @@ import org.crococryptfile.ui.cui.PasswordCreateConsole;
 import org.crococryptfile.ui.cui.PasswordInputConsole;
 import org.crococryptfile.ui.cui.StatusConsole;
 import org.crococryptfile.ui.gui.CrocoparamsDialog;
+import org.crococryptfile.ui.gui.PGP_PrivatekeyDialog;
 import org.crococryptfile.ui.gui.Page;
 import org.crococryptfile.ui.gui.PageLauncher;
 import org.crococryptfile.ui.gui.PageLauncher.Options;
@@ -35,12 +37,14 @@ import org.crococryptfile.ui.gui.pages.CAPI_DNList;
 import org.crococryptfile.ui.gui.pages.Decrypt;
 import org.crococryptfile.ui.gui.pages.Encrypt;
 import org.crococryptfile.ui.gui.pages.JCEPolicyError;
+import org.crococryptfile.ui.gui.pages.PGP_Keylist;
 import org.crococryptfile.ui.resources._T;
 import org.fhissen.callbacks.SUCCESS;
 import org.fhissen.callbacks.SimpleCallback;
 import org.fhissen.callbacks.SuccessCallback;
 import org.fhissen.crypto.CryptoCodes;
 import org.fhissen.crypto.InitCrypto;
+import org.fhissen.utils.ByteUtils;
 import org.fhissen.utils.os.OSFolders;
 import org.fhissen.utils.ui.StatusUpdate;
 
@@ -181,7 +185,7 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 						File croco = inputparams.filesanddirs.get(0);
 						inputparams.suite = SUITES.read(croco);
 						if(inputparams.suite == null){
-							UICenter.message("Input parameters are invalid (no valid provider)");
+							UICenter.message("Input parameters are invalid (no valid provider or file)");
 						}
 						else{
 							prepareDecryptParams(inputparams.suite);
@@ -370,6 +374,7 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 		operationParams.clear();
 	}
 	
+	
 	@SuppressWarnings("unchecked")
 	private void retrieveOperationParams(){
 		if(reqparams == null || reqparams.length <= reqparams_index){
@@ -395,6 +400,11 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 					else
 						new PasswordInputConsole().main(this);
 					break;
+					
+				case pgp_dec:
+					if(UICenter.isGUI())
+						PGP_PrivatekeyDialog.requestParams(currentSource, this);
+					break;
 
 				default:
 					UICenter.message("Internal error: unknown parameter");
@@ -415,6 +425,12 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 						PageLauncher.launch(new Options(currentSource), dnlist);
 					}
 					break;
+					
+				case pgp_enc:
+					if(UICenter.isGUI()){
+						PageLauncher.launch(new Options(currentSource), new PGP_Keylist(this));
+					}
+					break;
 
 				default:
 					UICenter.message("Internal error: unknown parameter");
@@ -424,6 +440,7 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	private void setOperationParam(Object source, Object value){
 		if(source == null || value == null) return;
 		
@@ -437,10 +454,18 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 		else if(c == CAPI_DNList.class){
 			operationParams.put(SuitePARAM.capi_alias, value);
 		}
+		else if(value instanceof HashMap){
+			HashMap hm = (HashMap) value;
+			if(hm.isEmpty()) return;
+			
+			if(hm.keySet().iterator().next() instanceof SuitePARAM){
+				operationParams.putAll(hm);
+			}
+		}
 	}
 	
 	private void setRawParams(ArrayList<String> raw){
-		if(reqparams == null || reqparams.length == 0 || raw == null || raw.size() != reqparams.length) return;
+		if(reqparams == null || reqparams.length == 0 || raw == null || raw.size() < reqparams.length) return;
 
 		for(reqparams_index = 0; reqparams_index < reqparams.length; reqparams_index++){
 			SuitePARAM tmp = reqparams[reqparams_index];
@@ -460,6 +485,61 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 					continue;
 				}
 				operationParams.put(tmp, pw);
+				continue;
+				
+			case pgp_enc:
+				if(raw.size() < 2) {
+					System.err.println("Not enough parameters specified");
+					return;
+				}
+				operationParams.put(SuitePARAM.pgp_pubkeyfile, raw.get(0));
+				
+				ArrayList<Long> kids = new ArrayList<>();
+				for(int i=1; i<raw.size(); i++){
+					String rawid = raw.get(i).trim();
+					if(rawid.length() < 16){
+						System.err.println("Only long keyid format supported");
+						continue;
+					}
+
+					Long l = 0L;
+					if(rawid.length() == 16){
+						try {
+							l = ByteUtils.bytesToLong(Hex.decode(rawid));
+						} catch (Exception e) {}
+					}
+					else{
+						try {
+							l = Long.parseLong(rawid);
+						} catch (Exception e) {}
+					}
+
+					if(l != 0) {
+						kids.add(l);
+					}
+					else{
+						System.err.println("keyid " + rawid + " could not be read");
+					}
+				}
+				if(kids.size() == 0) return;
+				
+				operationParams.put(SuitePARAM.pgp_keyidlist, kids);
+				continue;
+
+			case pgp_dec:
+				if(raw.size() < 2) {
+					System.err.println("Not enough parameters specified");
+					return;
+				}
+				
+				UICenter.message("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n" +
+						"You are providing a password as commandline option, this is NOT RECOMMEND" +
+						"\nsince your password might be easily gathered." +
+						"\n!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+				char[] pwpgp = raw.get(1).toCharArray();
+
+				operationParams.put(SuitePARAM.pgp_privkeyfile, raw.get(0));
+				operationParams.put(SuitePARAM.password, pwpgp);
 				continue;
 
 			default:

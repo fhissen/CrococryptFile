@@ -11,6 +11,7 @@ import java.util.HashMap;
 
 import org.crococryptfile.suites.capirsaaes.CAPIRSAAESMain;
 import org.crococryptfile.suites.pbeaes.PBE1AESMain;
+import org.crococryptfile.suites.pgpaes.PGPAESMain;
 import org.crococryptfile.ui.resources._T;
 import org.fhissen.utils.StreamMachine;
 import org.fhissen.utils.os.OSDetector;
@@ -20,6 +21,7 @@ import org.fhissen.utils.os.OSDetector.OS;
 public enum SUITES implements BasicFileinfo{
 	PBE1_AES(BASENUMBER + 10),
 	CAPI_RSAAES(BASENUMBER + 20),
+	PGP_AES(BASENUMBER + 30),
 	
 	;
 	
@@ -91,13 +93,21 @@ public enum SUITES implements BasicFileinfo{
 		numbers.add(CAPI_RSAAES.magicNumber());
 		descriptor.add(_T.Suite_CAPI_RSAAES.val());
 		id.put(CAPI_RSAAES.magicNumber(), CAPI_RSAAES);
-		
+
+		headers.add(PGPAESMain.class);
+		numbers.add(PGP_AES.magicNumber());
+		descriptor.add(_T.Suite_PGP_AES.val());
+		id.put(PGP_AES.magicNumber(), PGP_AES);
+
 		
 		PBE1_AES.setEncParams(new SuitePARAM[]{SuitePARAM.password});
 		PBE1_AES.setDecParams(new SuitePARAM[]{SuitePARAM.password});
 		
 		CAPI_RSAAES.setOS(OS.WIN);
 		CAPI_RSAAES.setEncParams(new SuitePARAM[]{SuitePARAM.capi_alias});
+		
+		PGP_AES.setEncParams(new SuitePARAM[]{SuitePARAM.pgp_enc});
+		PGP_AES.setDecParams(new SuitePARAM[]{SuitePARAM.pgp_dec});
 	}
 	
 	public static final int numberFromClass(Suite header){

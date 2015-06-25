@@ -14,7 +14,7 @@ public abstract class Page {
 	private static final String KEYWORD_ACTION = "action_";
 	private static final String KEYWORD_PARAM = "param_";
 
-	protected abstract void action(PageLauncher pl, Object action, HashMap<Object, String> params);
+	protected abstract void action(PageLauncher pl, Object action, PageActionparameters params);
 	protected abstract void generate(HashMap<String, String> uiparams);
 	
 	protected Object extractAction(String tmp){
@@ -99,6 +99,10 @@ public abstract class Page {
 	
 	protected static final String _quoteString(String tmp){
 		return tmp.replace("\"", "&quot;");
+	}
+	
+	protected static final String _quoteStringFull(String tmp){
+		return _quoteString(tmp).replace("<", "&lt;").replace(">", "&gt;");
 	}
 	
 	protected static final int _s2i(String tmp){

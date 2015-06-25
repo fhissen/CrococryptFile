@@ -8,7 +8,6 @@ import java.awt.event.WindowEvent;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.Charset;
-import java.util.HashMap;
 
 import javax.swing.JDialog;
 import javax.swing.JEditorPane;
@@ -167,7 +166,7 @@ public class PageLauncher {
 						if (data == null || data.length() == 0) return;
 						
 						String[] parts = data.split("&");
-						HashMap<Object, String> params = new HashMap<>();
+						PageActionparameters params = new PageActionparameters();
 						Object act = null;
 						for(String tmp: parts){
 							String[] paramlist = tmp.split("=");
@@ -189,7 +188,7 @@ public class PageLauncher {
 											tmpval = tmpval.substring(1, tmpval.length() - 1);
 										tmpval = tmpval.trim();
 									}
-									params.put(param, tmpval);
+									params.add(param, tmpval);
 								}
 							}
 						}

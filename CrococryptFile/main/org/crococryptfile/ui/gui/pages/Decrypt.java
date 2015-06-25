@@ -10,6 +10,7 @@ import org.crococryptfile.ui.CbIDecrypt;
 import org.crococryptfile.ui.UICenter;
 import org.crococryptfile.ui.gui.FileSelectdialog;
 import org.crococryptfile.ui.gui.Page;
+import org.crococryptfile.ui.gui.PageActionparameters;
 import org.crococryptfile.ui.gui.PageLauncher;
 import org.crococryptfile.ui.gui.SimpleDialogs;
 import org.crococryptfile.ui.resources.ResourceCenter;
@@ -77,7 +78,7 @@ public class Decrypt extends Page{
 	}
 
 	@Override
-	protected void action(PageLauncher pl, Object action, HashMap<Object, String> params) {
+	protected void action(PageLauncher pl, Object action, PageActionparameters params) {
 		OPT opt = (OPT) action;
 		if(opt == null) opt = OPT.decrypt;
 		
@@ -88,7 +89,7 @@ public class Decrypt extends Page{
 			return;
 			
 		case decrypt:
-			String fstring = params.get(OPT.folder);
+			String fstring = params.getString(OPT.folder);
 			if(fstring == null) return;
 			File tmpdst = new File(fstring);
 			File sanidst = sanitize(tmpdst);

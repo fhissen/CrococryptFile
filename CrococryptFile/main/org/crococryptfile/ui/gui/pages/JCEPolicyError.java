@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.util.HashMap;
 
 import org.crococryptfile.ui.gui.Page;
+import org.crococryptfile.ui.gui.PageActionparameters;
 import org.crococryptfile.ui.gui.PageLauncher;
 import org.crococryptfile.ui.resources._T;
 
@@ -15,7 +16,7 @@ public class JCEPolicyError extends Page{
 	}
 	
 	@Override
-	protected void action(PageLauncher pl, Object action, HashMap<Object, String> params) {
+	protected void action(PageLauncher pl, Object action, PageActionparameters params) {
 		if(params == null || action == null || !action.equals("ok")) return;
 		
 		pl.exit();
