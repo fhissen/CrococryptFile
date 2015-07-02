@@ -10,10 +10,15 @@ import org.fhissen.callbacks.SimpleCallback;
 public class CrocoparamsDialog{
 	private SimpleCallback<CrococryptParameters> cb;
 	private CrococryptParameters params = new CrococryptParameters();
+	private String title;
 	
-	private CrocoparamsDialog(SimpleCallback<CrococryptParameters> cb){
+	private CrocoparamsDialog(SimpleCallback<CrococryptParameters> cb, CrococryptParameters base, String title){
 		this.cb = cb;
-		
+		this.title = title;
+		if(base == null)
+			params = new CrococryptParameters();
+		else
+			params = base;
 		startSequence();
 	}
 	
@@ -41,14 +46,18 @@ public class CrocoparamsDialog{
 	private void startSequence(){
 		FileSelectdialog.Options opt = new FileSelectdialog.Options();
 		opt.buttoncaption = _T.FileSelection_selectbutton.val();
-		opt.title = _T.FileSelection_title.val();
+		opt.title = title;
+		if(opt.title == null) opt.title = _T.FileSelection_title.val();
 		opt.multiselect = true;
 		opt.foldersonly = false;
-		
 		FileSelectdialog.select(cbfiles, opt);
 	}
 
-	public static final void requestParams(SimpleCallback<CrococryptParameters> cb){
-		new CrocoparamsDialog(cb);
+	public static final void requestParams(SimpleCallback<CrococryptParameters> cb, CrococryptParameters base){
+		requestParams(cb, base, null);
+	}
+	
+	public static final void requestParams(SimpleCallback<CrococryptParameters> cb, CrococryptParameters base, String title){
+		new CrocoparamsDialog(cb, base, title);
 	}
 }

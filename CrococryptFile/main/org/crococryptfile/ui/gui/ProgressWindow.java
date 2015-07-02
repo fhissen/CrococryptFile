@@ -83,6 +83,7 @@ public class ProgressWindow {
 			
 			{
 				jd.addWindowListener(wl);
+				if(parent != null) parent.addWindowListener(wl);
 			}
 
 			@Override
@@ -101,6 +102,7 @@ public class ProgressWindow {
 			public void finished() {
 				if(active){
 					jd.removeWindowListener(wl);
+					if(parent != null) parent.removeWindowListener(wl);
 					jd.dispose();
 				}
 			}

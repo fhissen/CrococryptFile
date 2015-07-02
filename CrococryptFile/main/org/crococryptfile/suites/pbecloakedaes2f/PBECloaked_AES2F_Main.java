@@ -1,4 +1,4 @@
-package org.crococryptfile.suites.pbeaes;
+package org.crococryptfile.suites.pbecloakedaes2f;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,18 +15,23 @@ import org.fhissen.utils.ByteUtils;
 import org.fhissen.utils.StreamMachine;
 
 
-public class PBE1AESMain extends Suite {
-	private int ATTRIBUTE_ITERATIONCOUNT; 
-	private byte[] ATTRIBUTE_SALT = new byte[CryptoCodes.STANDARD_SALTSIZE]; 
-	private byte[] ATTRIBUTE_KEY = new byte[CryptoCodes.AES_KEYSIZE]; 
-	private byte[] ATTRIBUTE_IV = new byte[CryptoCodes.STANDARD_IVSIZE]; 
+public class PBECloaked_AES2F_Main extends Suite {
+	private byte[] ATTRIBUTE_SALT = new byte[CryptoCodes.STANDARD_SALTSIZE];
+	private byte[] ATTRIBUTE_SALTENC = new byte[CryptoCodes.STANDARD_SALTSIZE];
+	private byte[] ATTRIBUTE_KEY_AES = new byte[CryptoCodes.AES_KEYSIZE];
+	private byte[] ATTRIBUTE_KEY_TWO = new byte[CryptoCodes.AES_KEYSIZE];
+	private byte[] ATTRIBUTE_IV = new byte[CryptoCodes.STANDARD_IVSIZE];
+
+	private PBECloaked_AES2F_KeySet key;
+	private CipherMain ciph;
+	private char[] pw;
 
 	@Override
 	public final void deinit(){
 		if(key != null) key.deinit();
 		key = null;
 		CryptoUtils.kill(pw);
-		CryptoUtils.kill(ATTRIBUTE_KEY, ATTRIBUTE_IV);
+		CryptoUtils.kill(ATTRIBUTE_KEY_AES, ATTRIBUTE_KEY_TWO, ATTRIBUTE_IV);
 		ciph.deinint();
 		System.gc();
 	}
@@ -37,7 +42,7 @@ public class PBE1AESMain extends Suite {
 		super.finalize();
 	}
 	
-	private final int len = ByteUtils.sizeInBytes(ATTRIBUTE_ITERATIONCOUNT, ATTRIBUTE_SALT, ATTRIBUTE_KEY, ATTRIBUTE_IV);
+	private final int len = ByteUtils.sizeInBytes(ATTRIBUTE_SALT, ATTRIBUTE_SALTENC, ATTRIBUTE_KEY_AES, ATTRIBUTE_KEY_TWO, ATTRIBUTE_IV);
 	public final int headerLength(){
 		return len;
 	}
@@ -45,12 +50,6 @@ public class PBE1AESMain extends Suite {
 	public CipherMain getCipher(){
 		return ciph;
 	}
-	
-
-	private PBE1AESKeySet key;
-	private CipherMain ciph;
-	private char[] pw;
-	
 
 	@Override
 	protected void _init(SuiteMODE mode, HashMap<SuitePARAM, Object> params) throws IllegalArgumentException{
@@ -59,27 +58,27 @@ public class PBE1AESMain extends Suite {
 		if(pw == null) throw new IllegalArgumentException("PBE must specify a password");
 
 		if(mode == SuiteMODE.ENCRYPT){
-			key = PBE1PwToKey.createPBE(pw);
-			ciph = CipherMain.instance(BASECIPHER.AES, key.plainkey);
+			key = PBECloaked_AES2F_PwToKeys.createPBE(pw);
+			ciph = CipherMain.instance(CryptoUtils.toArray(BASECIPHER.TWOFISH, BASECIPHER.AES), key.two_plainkey, key.aes_plainkey);
 			
-			ATTRIBUTE_ITERATIONCOUNT = key.its;
 			ATTRIBUTE_SALT = key.salt;
-			ATTRIBUTE_KEY = key.enckey;
+			ATTRIBUTE_SALTENC = ciph.doEnc_ECB(ATTRIBUTE_SALT);
+			
+			ATTRIBUTE_KEY_AES = key.aes_enckey;
+			ATTRIBUTE_KEY_TWO = key.two_enckey;
 			ATTRIBUTE_IV = CryptoUtils.randIv16();
 		}
 	}
 	
-
 	protected void _writeTo(OutputStream out) throws IllegalStateException{
 		try {
 			StreamMachine.write(out,
-					ATTRIBUTE_ITERATIONCOUNT,
 					ATTRIBUTE_SALT,
-					ATTRIBUTE_KEY,
+					ATTRIBUTE_SALTENC,
+					ATTRIBUTE_KEY_AES,
+					ATTRIBUTE_KEY_TWO,
 					ciph.doEnc_ECB(ATTRIBUTE_IV)
 					);
-
-			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -88,28 +87,30 @@ public class PBE1AESMain extends Suite {
 	protected void _readFrom(InputStream is) throws IllegalStateException{
 		StreamMachine sm = new StreamMachine(is);
 
-		ATTRIBUTE_ITERATIONCOUNT = sm.readO(ATTRIBUTE_ITERATIONCOUNT);
 		sm.read(ATTRIBUTE_SALT);
-		sm.read(ATTRIBUTE_KEY); 
+		sm.read(ATTRIBUTE_SALTENC);
+		sm.read(ATTRIBUTE_KEY_AES);
+		sm.read(ATTRIBUTE_KEY_TWO);
 		sm.read(ATTRIBUTE_IV);
 		
 		if(ciph == null){
-			key = new PBE1AESKeySet();
-			key.enckey = ATTRIBUTE_KEY;
-			key.its = ATTRIBUTE_ITERATIONCOUNT;
+			key = new PBECloaked_AES2F_KeySet();
+			key.aes_enckey = ATTRIBUTE_KEY_AES;
+			key.two_enckey = ATTRIBUTE_KEY_TWO;
 			key.salt = ATTRIBUTE_SALT;
 			
-
-			PBE1PwToKey.loadPBE(pw, key);
-
-			ciph = CipherMain.instance(BASECIPHER.AES, key.plainkey);
+			PBECloaked_AES2F_PwToKeys.loadPBE(pw, key, ATTRIBUTE_SALT, ATTRIBUTE_SALTENC, getStatus());
+			ciph = CipherMain.instance(CryptoUtils.toArray(BASECIPHER.TWOFISH, BASECIPHER.AES), key.two_plainkey, key.aes_plainkey);
 		}
 		
 		ATTRIBUTE_IV = ciph.doDec_ECB(ATTRIBUTE_IV);
 	}
 	
-	
 	public byte[] getAttributeIV(){
 		return ATTRIBUTE_IV;
+	}
+	
+	public boolean fill(){
+		return false;
 	}
 }

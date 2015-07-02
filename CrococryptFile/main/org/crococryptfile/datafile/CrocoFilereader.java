@@ -8,6 +8,7 @@ import java.io.IOException;
 import org.crococryptfile.CrococryptFile;
 import org.crococryptfile.suites.SUITES;
 import org.crococryptfile.suites.Suite;
+import org.crococryptfile.suites.pbecloakedaes2f.PBECloaked_AES2F_Main;
 import org.crococryptfile.ui.resources._T;
 import org.fhissen.callbacks.SUCCESS;
 import org.fhissen.callbacks.SuccessCallback;
@@ -46,17 +47,25 @@ public class CrocoFilereader {
 				try {
 					if(suite == null) return;
 					if(stat != null) stat.start();
+					
+					suite.setStatus(stat);
 
 					FileInputStream is = new FileInputStream(croco);
-					StreamMachine.read(is, SUITES.MAGICNUMBER_LENGTH);
+					if(!(suite instanceof PBECloaked_AES2F_Main)) StreamMachine.read(is, SUITES.MAGICNUMBER_LENGTH);
 					suite.readFrom(is);
+					
+					if(stat != null && !stat.isActive()){
+						success = SUCCESS.CANCEL;
+						return;
+					}
+					
 					DumpHeader dh = new DumpHeader(suite);
 					dh.readFrom(is);
 					is.close();
 					if(!dh.isValid()) return;
 					
 					if(stat != null) stat.receiveMessageSummary(_T.Decrypt_Start.msg(dh.ATTRIBUTE_DUMPCOUNT));
-					DumpReader rf = new DumpReader(suite.headerLength() + dh.headerLength() + SUITES.MAGICNUMBER_LENGTH);
+					DumpReader rf = new DumpReader(suite.suiteLength() + dh.headerLength());
 					rf.setStatusReader(stat);
 					rf.main(croco.getAbsolutePath(), destdir.getAbsolutePath(), suite, dh);
 					

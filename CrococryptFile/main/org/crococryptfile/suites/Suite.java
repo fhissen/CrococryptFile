@@ -5,22 +5,18 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import org.crococryptfile.suites.pbecloakedaes2f.PBECloaked_AES2F_Main;
 import org.fhissen.crypto.CipherMain;
 import org.fhissen.crypto.CryptoCodes;
+import org.fhissen.utils.ui.StatusUpdate;
 
 
 public abstract class Suite {
-	private SUITES suite;
 	private SuiteMODE mode;
+	private StatusUpdate status;
 	private boolean initialized = false;
 	
-	protected Suite(SUITES suite){
-		this.suite = suite;
-	}
-	
-	public SUITES suite(){
-		return suite;
-	}
+	protected Suite(){}
 	
 	public final void init(SuiteMODE mode, HashMap<SuitePARAM, Object> params) throws IllegalArgumentException{
 		if(mode == null) throw new IllegalArgumentException("no mode specified");
@@ -66,9 +62,19 @@ public abstract class Suite {
 	
 	private int len = -1;
 	public final int suiteLength(){
-		if(len < 0)
-			len = headerLength() + SUITES.MAGICNUMBER_LENGTH;
+		if(len < 0){
+			len = headerLength();
+			if(!(this instanceof PBECloaked_AES2F_Main)) len += SUITES.MAGICNUMBER_LENGTH;
+		}
 		return len;
+	}
+	
+	public final void setStatus(StatusUpdate status){
+		this.status = status;
+	}
+	
+	protected final StatusUpdate getStatus(){
+		return status;
 	}
 	
 	

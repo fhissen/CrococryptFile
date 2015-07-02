@@ -57,12 +57,12 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 	}
 	
 	public static void main(String[] args) throws Exception{
-			if(args == null || args.length == 0){
-				launch(null);
-			}
-			else{
-				launch(ConsoleOptions.parse(args));
-			}
+		if(args == null || args.length == 0){
+			launch(null);
+		}
+		else{
+			launch(ConsoleOptions.parse(args));
+		}
 	}
 	
 	public static final void launch(CrococryptParameters params){
@@ -96,6 +96,7 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 	public static String LASTERROR = null;
 	
 	private boolean check_forcedec = true;
+	private boolean check_forcedeccloak = true;
 	private boolean check_forceparams = true;
 	private CrococryptParameters inputparams = null;
 	private HashMap<SuitePARAM, Object> operationParams = new HashMap<>();
@@ -114,6 +115,7 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 		none,
 
 		loadparams,
+		cloak4dec,
 		dec4enc,
 		operationparam,
 		decrypt,
@@ -146,7 +148,10 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 
 			if(UICenter.isGUI()){
 				cur = STATE.loadparams;
-				CrocoparamsDialog.requestParams(this);
+				if(inputparams != null && inputparams.cloakedfile)
+					CrocoparamsDialog.requestParams(this, inputparams, _T.FileSelection_title4cloak.val());
+				else
+					CrocoparamsDialog.requestParams(this, inputparams);
 			}
 			else{
 				UICenter.message("Invalid or insufficient options");
@@ -164,6 +169,18 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 				main();
 			}
 		}
+		else if(check_forcedeccloak && !inputparams.cloakedfile && !inputparams.decmode && inputparams.filesanddirs.size() == 1 && inputparams.filesanddirs.get(0).isFile()
+				&& inputparams.filesanddirs.get(0).getName().indexOf(".") < 0){
+			check_forcedeccloak = false;
+
+			if(UICenter.isGUI()){
+				cur = STATE.cloak4dec;
+				SimpleDialogs.questionYesNo(_T.FileSelection_dec4cloak.val(), successcb);
+			}
+			else{
+				main();
+			}
+		}
 		else{
 			if(inputparams.decmode){
 				if(UICenter.isGUI()){
@@ -172,8 +189,9 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 						File file = inputparams.filesanddirs.get(0);
 						String tmp = file.getName();
 						if(tmp.indexOf(".") > 0) tmp = tmp.substring(0, tmp.lastIndexOf("."));
-						else tmp = tmp + "Decrypt";
+						else tmp = tmp + " - archive";
 						startDest = new File(file.getParentFile(), tmp);
+						if(startDest.exists() && startDest.isFile()) startDest = new File(file.getParentFile(), tmp + " - archive");
 					}
 
 					Decrypt dec = new Decrypt(this);
@@ -182,8 +200,13 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 				}
 				else{
 					try {
-						File croco = inputparams.filesanddirs.get(0);
-						inputparams.suite = SUITES.read(croco);
+						if(inputparams.cloakedfile){
+							inputparams.suite = SUITES.PBECLOAKED_AESTWO;
+						}
+						else{
+							File croco = inputparams.filesanddirs.get(0);
+							inputparams.suite = SUITES.read(croco);
+						}
 						if(inputparams.suite == null){
 							UICenter.message("Input parameters are invalid (no valid provider or file)");
 						}
@@ -193,6 +216,7 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 							retrieveOperationParams();
 						}
 					} catch (Exception e) {
+						e.printStackTrace();
 						UICenter.message("Input parameters are invalid");
 					}
 				}
@@ -234,6 +258,8 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 				main();
 				break;
 				
+			case cloak4dec:
+				if(ret == SUCCESS.TRUE) inputparams.cloakedfile = true;
 			case dec4enc:
 				if(ret == SUCCESS.TRUE)
 					inputparams.decmode = true;
@@ -336,11 +362,16 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 		currentSource = source;
 		inputparams.destination = destinationFolder;
 		File croco = inputparams.filesanddirs.get(0);
-		inputparams.suite = SUITES.read(croco);
 		
-		if(inputparams.suite == null){
-			UICenter.message(_T.DecryptWindow_unknownfile);
-			return;
+		if(!inputparams.cloakedfile){
+			inputparams.suite = SUITES.read(croco);
+			if(inputparams.suite == null){
+				UICenter.message(_T.DecryptWindow_unknownfile);
+				return;
+			}
+		}
+		else{
+			inputparams.suite = SUITES.PBECLOAKED_AESTWO;
 		}
 		
 		prepareDecryptParams(inputparams.suite);

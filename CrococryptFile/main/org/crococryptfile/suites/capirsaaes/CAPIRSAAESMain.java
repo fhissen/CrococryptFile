@@ -10,7 +10,6 @@ import java.util.HashMap;
 import javax.crypto.Cipher;
 
 import org.crococryptfile.CrococryptFile;
-import org.crococryptfile.suites.SUITES;
 import org.crococryptfile.suites.Suite;
 import org.crococryptfile.suites.SuiteMODE;
 import org.crococryptfile.suites.SuitePARAM;
@@ -38,10 +37,6 @@ public class CAPIRSAAESMain extends Suite {
 	private String alias;
 	private byte[] aesplain;
 	private CipherMain ciph;
-
-	public CAPIRSAAESMain(){
-		super(SUITES.CAPI_RSAAES);
-	}
 
 	
 	@Override

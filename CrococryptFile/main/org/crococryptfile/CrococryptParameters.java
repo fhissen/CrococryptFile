@@ -8,6 +8,7 @@ import org.crococryptfile.suites.SUITES;
 public class CrococryptParameters {
 	public boolean forceconsole = false;
 	public boolean decmode = false;
+	public boolean cloakedfile = false;
 	public ArrayList<File> filesanddirs = new ArrayList<>();
 	public int dircount, filecount;
 	public boolean singlesource = true;

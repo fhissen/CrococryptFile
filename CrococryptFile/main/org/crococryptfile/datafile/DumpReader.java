@@ -8,6 +8,7 @@ import java.util.zip.InflaterInputStream;
 
 import org.crococryptfile.streams.CountingRAInputStream;
 import org.crococryptfile.suites.Suite;
+import org.crococryptfile.suites.pbecloakedaes2f.PBECloaked_AES2F_Main;
 import org.crococryptfile.ui.resources._T;
 import org.fhissen.utils.Codes;
 import org.fhissen.utils.FileUtils;
@@ -116,13 +117,19 @@ public class DumpReader {
 			if(status != null) status.receiveProgress(((int)(((float)(no+len)/(float)max_len) * 100f)));
 		}
 		
-		idxis.close();
-		is.realClose();
+		try {
+			idxis.close();
+		} catch (Exception e) {}
+		try {
+			is.realClose();
+		} catch (Exception e) {}
 		
 		if(status != null){
 			status.receiveProgress(100);
 			status.receiveMessageSummary(_T.General_done.val());
 		}
+		
+		if(dfile instanceof PBECloaked_AES2F_Main) return;
 		
 		if(se == StreamResult.ReadException) throw new IOException("error while reading");
 	}

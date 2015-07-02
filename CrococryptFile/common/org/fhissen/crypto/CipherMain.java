@@ -31,22 +31,7 @@ public class CipherMain {
 		this.ciphers = ciphers;
 	}
 
-	public OutputStream createOS_CBC_Nopad(OutputStream os, byte[] iv){
-		try {
-			Cipher[] ciphs = generateCBCNopadCiphers(false, iv);
-			CipherOutputStream cos = new CipherOutputStream(os, ciphs[0]);
-			for(int i=1; i<ciphs.length; i++){
-				cos = new CipherOutputStream(cos, ciphs[i]);
-			}
-			
-			return cos;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 
-		return null;
-	}
-	
 	public OutputStream createOS_CBC_Pad(OutputStream os, byte[] iv){
 		try {
 			Cipher[] ciphs = generateCBCPadCiphers(false, iv);
@@ -67,8 +52,8 @@ public class CipherMain {
 	public InputStream createIS_CBC_Pad(InputStream is, byte[] iv){
 		try {
 			Cipher[] ciphs = generateCBCPadCiphers(true, iv);
-			CipherInputStream cis = new CipherInputStream(is, ciphs[ciphs.length - 1]);
-			for(int i=ciphs.length-2; i>=0; i--){
+			CipherInputStream cis = new CipherInputStream(is, ciphs[0]);
+			for(int i=1; i<ciphs.length; i++){
 				cis = new CipherInputStream(cis, ciphs[i]);
 			}
 			
@@ -80,22 +65,7 @@ public class CipherMain {
 		return null;
 	}
 	
-	public byte[] doDec_CBC_Nopad(byte[] in, byte[] iv){
-		try {
-			Cipher[] ciphs = generateCBCNopadCiphers(true, iv);
-			byte[] ret = ciphs[ciphs.length - 1].doFinal(in);
-			for(int i=ciphs.length-2; i>=0; i--){
-				ret = ciphs[i].doFinal(ret);
-			}
-			
-			return ret;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
 
-		return null;
-	}
-	
 	public byte[] doEnc_ECB(byte[] in){
 		try {
 			Cipher[] ciphs = generateECBCiphers(false);
@@ -150,16 +120,6 @@ public class CipherMain {
 		return ciphs;
 	}
 
-	private Cipher[] generateCBCNopadCiphers(boolean decrypt, byte[] iv)
-			throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException{
-		Cipher[] ciphs = new Cipher[keys.length];
-		for(int i=0; i<keys.length; i++){
-			ciphs[i] = Cipher.getInstance(ciphers[i].getCBCNopad());
-			if(decrypt) ciphs[i].init(Cipher.DECRYPT_MODE, keys[i], new IvParameterSpec(iv));
-			else ciphs[i].init(Cipher.ENCRYPT_MODE, keys[i], new IvParameterSpec(iv));
-		}
-		return ciphs;
-	}
 
 	private Cipher[] generateCBCPadCiphers(boolean decrypt, byte[] iv)
 			throws NoSuchPaddingException, NoSuchAlgorithmException, InvalidKeyException, InvalidAlgorithmParameterException{

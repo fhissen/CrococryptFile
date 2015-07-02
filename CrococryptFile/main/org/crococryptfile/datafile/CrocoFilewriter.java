@@ -10,9 +10,11 @@ import java.io.RandomAccessFile;
 import org.crococryptfile.CrococryptFile;
 import org.crococryptfile.suites.SUITES;
 import org.crococryptfile.suites.Suite;
+import org.crococryptfile.suites.pbecloakedaes2f.PBECloaked_AES2F_Main;
 import org.crococryptfile.ui.resources._T;
 import org.fhissen.callbacks.SUCCESS;
 import org.fhissen.callbacks.SuccessCallback;
+import org.fhissen.crypto.CryptoUtils;
 import org.fhissen.crypto.InitCrypto;
 import org.fhissen.utils.ui.StatusUpdate;
 
@@ -60,7 +62,7 @@ public class CrocoFilewriter {
 					wf.setOutfile(outfile);
 					
 					os = new FileOutputStream(outfile);
-					SUITES.create(os, SUITES.numberFromClass(suite));
+					if(!(suite instanceof PBECloaked_AES2F_Main)) SUITES.create(os, SUITES.numberFromClass(suite));
 					suite.writeTo(os);
 					DumpHeader dh = new DumpHeader(suite);
 					dh.createOut(os);
@@ -106,6 +108,18 @@ public class CrocoFilewriter {
 					dh.ATTRIBUTE_DUMPLEN = dumplen;
 					dh.ATTRIBUTE_DUMPCOUNT = ct;
 					dh.createOut(fos);
+					
+					if(suite instanceof PBECloaked_AES2F_Main && ((PBECloaked_AES2F_Main)suite).fill()){
+						int mbs = (int) (raf.length() % (1024*1024));
+						mbs = (1024*1024) - mbs;
+						if(mbs > 0){
+							byte[] rand = CryptoUtils.randIv(mbs);
+							raf.seek(raf.length());
+							raf.write(rand);
+							CryptoUtils.kill(rand);
+						}
+					}
+
 					fos.close();
 					raf.close();
 					

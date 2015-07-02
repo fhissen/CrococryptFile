@@ -44,7 +44,7 @@ public class Encrypt extends Page{
 	}
 	
 	public void setFile(File destfile){
-		this.destfile = destfile;
+		this.destfile = sanitize(destfile);
 	}
 	
 	@Override
@@ -59,7 +59,12 @@ public class Encrypt extends Page{
 			SUITES suite = suites[i];
 			if(!suite.isAvailable()) continue;
 			String tmp = listbase;
-			if(!suite.name().equals(lastprov)) tmp = tmp.replace("SELECTED", "");
+			if(!suite.name().equals(lastprov)){
+				tmp = tmp.replace("SELECTED", "");
+			}
+			else{
+				if(suite == SUITES.PBECLOAKED_AESTWO || suite == SUITES.PBECLOAKED1MB_AESTWO ) co.cloakedfile = true;
+			}
 			tmp = tmp.replace("CODE", suite.name());
 			tmp = tmp.replace("DESCR", SUITES.descriptor.get(i));
 			sbmenu.append(tmp);
@@ -101,10 +106,12 @@ public class Encrypt extends Page{
 
 		params.put("text", text);
 
-		String defaultFile = null;
-		if(destfile != null) defaultFile = destfile.getAbsolutePath();
-		if(defaultFile == null) defaultFile = new File(OSFolders.getUserChooserstart(), _T.EncryptWindow_EncryptedFile + BasicFileinfo.FILEEXTENSIONwDOT).getAbsolutePath();
-		params.put("startfile", _quoteString(defaultFile)); 
+		destfile = sanitize(destfile);
+		if(destfile == null) destfile = sanitize(new File(OSFolders.getUserChooserstart(), _T.EncryptWindow_EncryptedFile + BasicFileinfo.FILEEXTENSIONwDOT));
+		String defaultFileShow = null;
+		if(destfile != null) defaultFileShow = destfile.getAbsolutePath();
+		if(defaultFileShow == null) defaultFileShow = new File(OSFolders.getUserChooserstart(), _T.EncryptWindow_EncryptedFile + BasicFileinfo.FILEEXTENSIONwDOT).getAbsolutePath();
+		params.put("startfile", _quoteString(defaultFileShow)); 
 	}
 	
 	@Override
@@ -129,6 +136,21 @@ public class Encrypt extends Page{
 			return;
 
 		case encrypt:
+			SUITES suitex = SystemUtils.s2E(params.getString(OPT.provider), SUITES.class);
+			if(suitex != null){
+				co.suite = suitex;
+				if(!suitex.name().equals(ResourceCenter.getSettings().get(Settings.lastprovider))){
+					ResourceCenter.getSettings().set(Settings.lastprovider, suitex.name());
+					ResourceCenter.getSettings().save();
+				}
+			}
+			else{
+				UICenter.message("Internal error: No crypto suite");
+				return;
+			}
+			if(suitex == SUITES.PBECLOAKED_AESTWO || suitex == SUITES.PBECLOAKED1MB_AESTWO ) co.cloakedfile = true;
+			else co.cloakedfile = false;
+
 			String fstring = params.getString(OPT.file);
 			if(fstring == null) return;
 			File tmpdst = new File(fstring);
@@ -139,18 +161,16 @@ public class Encrypt extends Page{
 				return;
 			}
 
-			SUITES suitex = SystemUtils.s2E(params.getString(OPT.provider), SUITES.class);
-			if(suitex != null && !suitex.name().equals(ResourceCenter.getSettings().get(Settings.lastprovider))){
-				ResourceCenter.getSettings().set(Settings.lastprovider, suitex.name());
-				ResourceCenter.getSettings().save();
-			}
-
 			if(!tmpdst.equals(sanidst) || !fstring.equals(sanidst.getAbsolutePath())){
 				setFile(sanidst);
 				pl.refresh();
 			}
 			
-			if(sanidst.exists()){
+			if(sanidst.exists() && sanidst.isDirectory()){
+				UICenter.message(_T.EncryptWindow_alreadydir);
+				return;
+			}
+			else if(sanidst.exists()){
 				int retval = JOptionPane.showConfirmDialog(pl.getWindow(), 
 		                _T.EncryptWindow_already, ResourceCenter.TITLE,
 		                JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
@@ -176,7 +196,7 @@ public class Encrypt extends Page{
 	private final void choose(){
 		FileSelectdialog.Options opt = new FileSelectdialog.Options();
 		opt.multiselect = false;
-		opt.startFolder = destfile.getParentFile();
+		if(destfile != null) opt.startFolder = destfile.getParentFile();
 		while(opt.startFolder != null && !opt.startFolder.exists())
 			opt.startFolder = opt.startFolder.getParentFile();
 		
@@ -195,6 +215,8 @@ public class Encrypt extends Page{
 	}
 	
 	private File sanitize(File dest){
+		if(dest == null) return null;
+		
 		File tmp = null;
 		try {
 			tmp = dest.getCanonicalFile();
@@ -202,12 +224,22 @@ public class Encrypt extends Page{
 			e.printStackTrace();
 		}
 		if(tmp == null) return null;
+		String tmpname = tmp.getName();
 		
-		if(tmp.exists() && tmp.isDirectory()){
-			tmp = new File(tmp, _T.EncryptWindow_EncryptedFile + BasicFileinfo.FILEEXTENSIONwDOT);
+		
+		String ext = "";
+		if(!co.cloakedfile){
+			ext = BasicFileinfo.FILEEXTENSIONwDOT;
+
+			if(!tmpname.endsWith(ext)){
+				tmp = new File(tmp.getParentFile(), tmpname + ext);
+			}
 		}
-		else if(!tmp.getName().endsWith(BasicFileinfo.FILEEXTENSIONwDOT)){
-			tmp = new File(tmp.getParentFile(), tmp.getName() + BasicFileinfo.FILEEXTENSIONwDOT);
+		else{
+			if(tmpname.endsWith(BasicFileinfo.FILEEXTENSIONwDOT)){
+				tmpname = tmpname.substring(0, tmpname.length() - BasicFileinfo.FILEEXTENSIONwDOT_LENGTH);
+			}
+			tmp = new File(tmp.getParentFile(), tmpname);
 		}
 		
 		return tmp;

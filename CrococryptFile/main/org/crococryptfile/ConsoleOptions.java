@@ -16,6 +16,7 @@ public class ConsoleOptions {
 		t,
 		prov,
 		cred,
+		cloak,
 		verbose,
 	}
 	
@@ -27,7 +28,8 @@ public class ConsoleOptions {
 		description.put(ConsoleOptions_Params.t, " <DIR|FILE>\tTarget (directory for decrypt or file for encrypt)");
 		description.put(ConsoleOptions_Params.prov, " <STRING>\tCrococryptFile's crypto suite to use, e.g.: " + SUITES.providerListAsLine());
 		description.put(ConsoleOptions_Params.cred, " <STRING>\tCollection of credentials (NOT RECOMMENDED due to security risks\n\t\t\tthrough providing passwords etc. via a console!)");
-		description.put(ConsoleOptions_Params.verbose, "\tDetailed output");
+		description.put(ConsoleOptions_Params.cloak, "\tTry to decrypt a cloaked file");
+		description.put(ConsoleOptions_Params.verbose, "\t\tDetailed output");
 	}
 	
 	public static CrococryptParameters parse(String[] args) {
@@ -93,6 +95,10 @@ public class ConsoleOptions {
 			}
 			else if(checkParam(s, ConsoleOptions_Params.verbose)){
 				opt.verboseconsole = true;
+			}
+			else if(checkParam(s, ConsoleOptions_Params.cloak)){
+				opt.cloakedfile = true;
+				opt.decmode = true;
 			}
 			else{
 				File tmp = null;

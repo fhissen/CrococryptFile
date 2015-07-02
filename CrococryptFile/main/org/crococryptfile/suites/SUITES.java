@@ -11,6 +11,8 @@ import java.util.HashMap;
 
 import org.crococryptfile.suites.capirsaaes.CAPIRSAAESMain;
 import org.crococryptfile.suites.pbeaes.PBE1AESMain;
+import org.crococryptfile.suites.pbecloakedaes2f.PBECloaked_AES2F_Main;
+import org.crococryptfile.suites.pbecloakedaes2f.PBECloaked_AES2F_Main_1MB;
 import org.crococryptfile.suites.pgpaes.PGPAESMain;
 import org.crococryptfile.ui.resources._T;
 import org.fhissen.utils.StreamMachine;
@@ -22,6 +24,8 @@ public enum SUITES implements BasicFileinfo{
 	PBE1_AES(BASENUMBER + 10),
 	CAPI_RSAAES(BASENUMBER + 20),
 	PGP_AES(BASENUMBER + 30),
+	PBECLOAKED_AESTWO(BASENUMBER + 1000),
+	PBECLOAKED1MB_AESTWO(BASENUMBER + 1001),
 	
 	;
 	
@@ -99,6 +103,16 @@ public enum SUITES implements BasicFileinfo{
 		descriptor.add(_T.Suite_PGP_AES.val());
 		id.put(PGP_AES.magicNumber(), PGP_AES);
 
+		headers.add(PBECloaked_AES2F_Main.class);
+		numbers.add(PBECLOAKED_AESTWO.magicNumber());
+		descriptor.add(_T.Suite_PBECLOAKED_AESTWO.val());
+		id.put(PBECLOAKED_AESTWO.magicNumber(), PBECLOAKED_AESTWO);
+
+		headers.add(PBECloaked_AES2F_Main_1MB.class);
+		numbers.add(PBECLOAKED1MB_AESTWO.magicNumber());
+		descriptor.add(_T.Suite_PBECLOAKED1MB_AESTWO.val());
+		id.put(PBECLOAKED1MB_AESTWO.magicNumber(), PBECLOAKED1MB_AESTWO);
+
 		
 		PBE1_AES.setEncParams(new SuitePARAM[]{SuitePARAM.password});
 		PBE1_AES.setDecParams(new SuitePARAM[]{SuitePARAM.password});
@@ -108,6 +122,12 @@ public enum SUITES implements BasicFileinfo{
 		
 		PGP_AES.setEncParams(new SuitePARAM[]{SuitePARAM.pgp_enc});
 		PGP_AES.setDecParams(new SuitePARAM[]{SuitePARAM.pgp_dec});
+		
+		PBECLOAKED_AESTWO.setEncParams(new SuitePARAM[]{SuitePARAM.password});
+		PBECLOAKED_AESTWO.setDecParams(new SuitePARAM[]{SuitePARAM.password});
+
+		PBECLOAKED1MB_AESTWO.setEncParams(new SuitePARAM[]{SuitePARAM.password});
+		PBECLOAKED1MB_AESTWO.setDecParams(new SuitePARAM[]{SuitePARAM.password});
 	}
 	
 	public static final int numberFromClass(Suite header){

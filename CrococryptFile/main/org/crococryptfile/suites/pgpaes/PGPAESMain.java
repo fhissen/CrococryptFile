@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.crococryptfile.CrococryptFile;
-import org.crococryptfile.suites.SUITES;
 import org.crococryptfile.suites.Suite;
 import org.crococryptfile.suites.SuiteMODE;
 import org.crococryptfile.suites.SuitePARAM;
@@ -42,10 +41,6 @@ public class PGPAESMain extends Suite {
 	private char[] pass;
 	private ArrayList<Long> kids = new ArrayList<>();
 
-	public PGPAESMain(){
-		super(SUITES.PGP_AES);
-	}
-	
 	@SuppressWarnings("unchecked")
 	@Override
 	protected void _init(SuiteMODE mode, HashMap<SuitePARAM, Object> params) throws IllegalArgumentException{
