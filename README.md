@@ -1,7 +1,9 @@
 # CrococryptFile
-An open-source tool for creating encrypted file archives on Windows/Linux/Mac (Java based).
+An open-source tool for creating encrypted file archives on Windows/Linux/Mac
 
 Official homepage & More information: http://www.frankhissen.de/crococryptfile.html
+
+All download packages: https://github.com/fhissen/CrococryptFile/releases ([More details](http://www.frankhissen.de/crococryptfile-download-en-frank-hissen-it-software.html))
 
 ## Crypto Suites
 
