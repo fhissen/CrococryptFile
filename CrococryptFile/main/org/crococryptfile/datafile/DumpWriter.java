@@ -12,6 +12,7 @@ import org.crococryptfile.streams.CountingOutputStream;
 import org.crococryptfile.suites.Suite;
 import org.crococryptfile.ui.resources._T;
 import org.fhissen.crypto.CryptoUtils;
+import org.fhissen.utils.Codes;
 import org.fhissen.utils.FileUtils;
 import org.fhissen.utils.os.OSDetector;
 import org.fhissen.utils.ui.StatusUpdate;
@@ -56,7 +57,7 @@ public class DumpWriter {
 	
 	public void seal(final boolean c_deinit, File f) throws IOException{
 		OutputStream os = new DeflaterOutputStream(icroc.getCipher().createOS_CBC_Pad(new FileOutputStream(f, true), icroc.getAlteredIV(10)),
-				new Deflater(Deflater.BEST_SPEED), true);
+				new Deflater(Deflater.BEST_SPEED), Codes.ZIP_BUFFERSIZE, true);
 
 		index.write(os);
 		
@@ -134,7 +135,7 @@ public class DumpWriter {
 		if(checkExt(f.getName())) deflater = Deflater.NO_COMPRESSION;
 		
 		OutputStream os = new DeflaterOutputStream(icroc.getCipher().createOS_CBC_Pad(mainstream, iv),
-					new Deflater(deflater), true);
+					new Deflater(deflater), Codes.ZIP_BUFFERSIZE, true);
 		
 		long writtenlen = 0;
 		while(len >= 0 && active()){

@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
 import org.crococryptfile.streams.CountingRAInputStream;
@@ -99,7 +100,7 @@ public class DumpReader {
 			FileOutputStream fos = new FileOutputStream(ftmp);
 			
 			InputStream in = new InflaterInputStream(
-						dfile.getCipher().createIS_CBC_Pad(is, entry.ATTRIBUTE_IV)
+						dfile.getCipher().createIS_CBC_Pad(is, entry.ATTRIBUTE_IV), new Inflater(), Codes.ZIP_BUFFERSIZE
 					);
 			
 			int l = in.read(buffer);
@@ -146,7 +147,7 @@ public class DumpReader {
 			CountingRAInputStream fis = new CountingRAInputStream(dump, true);
 			fis.newItem(dh.ATTRIBUTE_DUMPLEN, dump.length() - dh.ATTRIBUTE_DUMPLEN);
 			
-			InputStream in = new InflaterInputStream(dfile.getCipher().createIS_CBC_Pad(fis, dfile.getAlteredIV(10)));
+			InputStream in = new InflaterInputStream(dfile.getCipher().createIS_CBC_Pad(fis, dfile.getAlteredIV(10)), new Inflater(), Codes.ZIP_BUFFERSIZE);
 			return in;
 	}
 	

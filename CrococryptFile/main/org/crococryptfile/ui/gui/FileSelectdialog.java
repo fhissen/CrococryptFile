@@ -8,6 +8,7 @@ import javax.swing.JFrame;
 import org.crococryptfile.ui.resources.ResourceCenter;
 import org.fhissen.callbacks.SimpleCallback;
 import org.fhissen.utils.os.OSFolders;
+import org.fhissen.utils.ui.SwingHacks_FileSystemView;
 
 public class FileSelectdialog {
 	public static class Options{
@@ -34,8 +35,14 @@ public class FileSelectdialog {
 		jf.setSize(200, 100);
 		jf.setLocationRelativeTo(null);
 		
-		JFileChooser chooser;
-	    chooser = new JFileChooser();
+		JFileChooser chooser = null;
+		
+	    try {
+		    chooser = new JFileChooser();
+		} catch (Exception e) {
+		    chooser = new JFileChooser(new SwingHacks_FileSystemView());
+		}
+		
 	    chooser.setDialogTitle(opt.title);
 	    
 	    if(opt.foldersonly){
