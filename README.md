@@ -10,6 +10,9 @@ For download packages, binary releases, setups & installers visit: [CrococryptFi
 The following crypto suites are currently included:
 
 * Password-based encryption (following PBKDF2) with AES-256
+* Password-based encryption (following PBKDF2) with Twofish-256
+* Password-based encryption (following PBKDF2) with Serpent-256
+* Password-based encryption (following PBKDF2) with Camellia-256
 * Windows Keystore based encryption using RSA keys and AES-256
 * GPG/OpenPGP key based encryption with AES-256
 * Cloaked (headerless) Password based Encryption (AES-Twofish-256)
