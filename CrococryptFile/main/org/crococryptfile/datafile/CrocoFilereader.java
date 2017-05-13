@@ -48,8 +48,6 @@ public class CrocoFilereader {
 					if(suite == null) return;
 					if(stat != null) stat.start();
 					
-					suite.setStatus(stat);
-
 					FileInputStream is = new FileInputStream(croco);
 					if(!(suite instanceof PBECloaked_AES2F_Main)) StreamMachine.read(is, SUITES.MAGICNUMBER_LENGTH);
 					suite.readFrom(is);

@@ -94,6 +94,7 @@ public class ProgressDoubleWindow {
 				if(parent != null) parent.addWindowListener(wl);
 			}
 
+			
 			@Override
 			public void start() {
 				SwingUtilities.invokeLater(new Runnable() {

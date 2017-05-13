@@ -29,13 +29,15 @@ public class ResourceCenter {
 	private static final String BASE, ABSOLUTE_HTML, ABSOLUTE_IMAGES;
 
 	public static final String TITLE = "CrococryptFile";
-	public static final String VERSION = "1.4";
-	public static final String VERSIONCODE = "4";
+	public static final String VERSION = "1.6";
+	public static final String VERSIONCODE = "6";
 	
 	public static final String TITLE_VERSION = TITLE + " " + VERSION;
 	
 	public static final ArrayList<Image> icons = new ArrayList<>();
 	public static Image logo16, logo32, logo48, logo64;
+
+	public static Image optsup, optsdown;
 
 	static{
 		String tmp = ResourceCenter.getAbsoluteRes("x").toString();
@@ -53,6 +55,9 @@ public class ResourceCenter {
 			icons.add(ResourceCenter.logo32);
 			icons.add(ResourceCenter.logo48);
 			icons.add(ResourceCenter.logo16);
+
+			optsup = new ImageIcon(getAbsoluteRes(PATH_IMAGES + "optsup.png")).getImage();
+			optsdown = new ImageIcon(getAbsoluteRes(PATH_IMAGES + "optsdown.png")).getImage();
 		} catch (Throwable t) {
 			System.err.println(t.getLocalizedMessage());
 		}

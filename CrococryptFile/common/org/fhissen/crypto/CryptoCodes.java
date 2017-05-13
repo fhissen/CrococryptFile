@@ -1,15 +1,10 @@
 package org.fhissen.crypto;
 
+import java.util.HashMap;
+
 public class CryptoCodes {
 	public static final String KEY_AES = "AES";
 	public static final String KEY_RSA = "RSA";
-	
-	public static final String CIPHER_AES_ECB_NoPad = "AES/ECB/NoPadding";
-	public static final String CIPHER_AES_CBC_Pad = "AES/CBC/PKCS5Padding";
-	public static final String CIPHER_AES_CBC_NoPad = "AES/CBC/NoPadding";
-	public static final String CIPHER_2FISH_ECB_NoPad = "Twofish/ECB/NoPadding";
-	public static final String CIPHER_2FISH_CBC_Pad = "Twofish/CBC/PKCS5Padding";
-	public static final String CIPHER_2FISH_CBC_NoPad = "Twofish/CBC/NoPadding";
 	
 	public static final String HMAC_SHA512 = "HmacSHA512";
 	public static final String HMAC_WHIRL = "HmacWhirlpool";
@@ -26,44 +21,49 @@ public class CryptoCodes {
 	public static final int STANDARD_PBKDF2_PWLEN = 8; 
 
 
+	private static HashMap<BASECIPHER, String> ecbCodes = new HashMap<>();
+	private static HashMap<BASECIPHER, String> cbcpadCodes = new HashMap<>();
+	private static HashMap<BASECIPHER, String> cbcnopadCodes = new HashMap<>();
+
+	static{
+		for(BASECIPHER b: BASECIPHER.values()){
+			ecbCodes.put(b, b.getCipherCode() + "/ECB/NoPadding");
+			cbcpadCodes.put(b, b.getCipherCode() + "/CBC/PKCS5Padding");
+			cbcnopadCodes.put(b, b.getCipherCode() + "/CBC/NoPadding");
+		}
+	}
+
 	public enum BASECIPHER{
 		AES,
-		TWOFISH,
+		TWOFISH ("Twofish"),
+		SERPENT ("Serpent"),
+		CAMELLIA ("Camellia"),
 		
 		;
 		
+		private String cipherCode = null;
+		private BASECIPHER(){}
+		private BASECIPHER(String cipherCode){
+			this.cipherCode = cipherCode;
+		}
+		
+		private String getCipherCode(){
+			if(cipherCode != null)
+				return cipherCode;
+			
+			return name();
+		}
 		
 		public String getECB(){
-			switch (this) {
-			case AES:
-				return CIPHER_AES_ECB_NoPad;
-			case TWOFISH:
-				return CIPHER_2FISH_ECB_NoPad;
-			}
-			
-			return null;
+			return ecbCodes.get(this);
 		}
 		
 		public String getCBCPad(){
-			switch (this) {
-			case AES:
-				return CIPHER_AES_CBC_Pad;
-			case TWOFISH:
-				return CIPHER_2FISH_CBC_Pad;
-			}
-			
-			return null;
+			return cbcpadCodes.get(this);
 		}
 		
 		public String getCBCNopad(){
-			switch (this) {
-			case AES:
-				return CIPHER_AES_CBC_NoPad;
-			case TWOFISH:
-				return CIPHER_2FISH_CBC_NoPad;
-			}
-			
-			return null;
+			return cbcnopadCodes.get(this);
 		}
 	}
 }

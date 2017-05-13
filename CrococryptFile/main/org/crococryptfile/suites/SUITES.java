@@ -8,11 +8,15 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 
 import org.crococryptfile.suites.capirsaaes.CAPIRSAAESMain;
 import org.crococryptfile.suites.pbeaes.PBE1AESMain;
+import org.crococryptfile.suites.pbecamellia.PBE1CamelliaMain;
 import org.crococryptfile.suites.pbecloakedaes2f.PBECloaked_AES2F_Main;
 import org.crococryptfile.suites.pbecloakedaes2f.PBECloaked_AES2F_Main_1MB;
+import org.crococryptfile.suites.pbeserpent.PBE1SerpentMain;
+import org.crococryptfile.suites.pbetwofish.PBE1TwofishMain;
 import org.crococryptfile.suites.pgpaes.PGPAESMain;
 import org.crococryptfile.ui.resources._T;
 import org.fhissen.utils.StreamMachine;
@@ -22,11 +26,14 @@ import org.fhissen.utils.os.OSDetector.OS;
 
 public enum SUITES implements BasicFileinfo{
 	PBE1_AES(BASENUMBER + 10),
+	PBE1_TWOFISH(BASENUMBER + 13),
+	PBE1_SERPENT(BASENUMBER + 14),
+	PBE1_CAMELLIA(BASENUMBER + 15),
 	CAPI_RSAAES(BASENUMBER + 20),
 	PGP_AES(BASENUMBER + 30),
 	PBECLOAKED_AESTWO(BASENUMBER + 1000),
 	PBECLOAKED1MB_AESTWO(BASENUMBER + 1001),
-	
+
 	;
 	
 	private int magicnumber;
@@ -88,34 +95,29 @@ public enum SUITES implements BasicFileinfo{
 	public static final HashMap<Integer, SUITES> id = new HashMap<>();
 
 	static{
-		headers.add(PBE1AESMain.class);
-		numbers.add(PBE1_AES.magicNumber());
-		descriptor.add(_T.Suite_PBE1_AES.val());
-		id.put(PBE1_AES.magicNumber(), PBE1_AES);
-
-		headers.add(CAPIRSAAESMain.class);
-		numbers.add(CAPI_RSAAES.magicNumber());
-		descriptor.add(_T.Suite_CAPI_RSAAES.val());
-		id.put(CAPI_RSAAES.magicNumber(), CAPI_RSAAES);
-
-		headers.add(PGPAESMain.class);
-		numbers.add(PGP_AES.magicNumber());
-		descriptor.add(_T.Suite_PGP_AES.val());
-		id.put(PGP_AES.magicNumber(), PGP_AES);
-
-		headers.add(PBECloaked_AES2F_Main.class);
-		numbers.add(PBECLOAKED_AESTWO.magicNumber());
-		descriptor.add(_T.Suite_PBECLOAKED_AESTWO.val());
-		id.put(PBECLOAKED_AESTWO.magicNumber(), PBECLOAKED_AESTWO);
-
-		headers.add(PBECloaked_AES2F_Main_1MB.class);
-		numbers.add(PBECLOAKED1MB_AESTWO.magicNumber());
-		descriptor.add(_T.Suite_PBECLOAKED1MB_AESTWO.val());
-		id.put(PBECLOAKED1MB_AESTWO.magicNumber(), PBECLOAKED1MB_AESTWO);
+		add(PBE1AESMain.class, PBE1_AES);
+		add(PBE1TwofishMain.class, PBE1_TWOFISH);
+		add(PBE1SerpentMain.class, PBE1_SERPENT);
+		add(PBE1CamelliaMain.class, PBE1_CAMELLIA);
+		add(CAPIRSAAESMain.class, CAPI_RSAAES);
+		add(PGPAESMain.class, PGP_AES);
+		add(PBECloaked_AES2F_Main.class, PBECLOAKED_AESTWO);
+		add(PBECloaked_AES2F_Main_1MB.class, PBECLOAKED1MB_AESTWO);
 
 		
-		PBE1_AES.setEncParams(new SuitePARAM[]{SuitePARAM.password});
-		PBE1_AES.setDecParams(new SuitePARAM[]{SuitePARAM.password});
+				SUITES[] passworders = {
+				PBE1_AES,
+				PBE1_TWOFISH,
+				PBE1_SERPENT,
+				PBE1_CAMELLIA,
+				PBECLOAKED_AESTWO,
+				PBECLOAKED1MB_AESTWO,
+		};
+		
+		for(SUITES s: passworders){
+			s.setEncParams(new SuitePARAM[]{SuitePARAM.password});
+			s.setDecParams(new SuitePARAM[]{SuitePARAM.password});
+		}
 		
 		CAPI_RSAAES.setOS(OS.WIN);
 		CAPI_RSAAES.setEncParams(new SuitePARAM[]{SuitePARAM.capi_alias});
@@ -123,11 +125,21 @@ public enum SUITES implements BasicFileinfo{
 		PGP_AES.setEncParams(new SuitePARAM[]{SuitePARAM.pgp_enc});
 		PGP_AES.setDecParams(new SuitePARAM[]{SuitePARAM.pgp_dec});
 		
-		PBECLOAKED_AESTWO.setEncParams(new SuitePARAM[]{SuitePARAM.password});
-		PBECLOAKED_AESTWO.setDecParams(new SuitePARAM[]{SuitePARAM.password});
-
-		PBECLOAKED1MB_AESTWO.setEncParams(new SuitePARAM[]{SuitePARAM.password});
-		PBECLOAKED1MB_AESTWO.setDecParams(new SuitePARAM[]{SuitePARAM.password});
+		
+		HashSet<Integer> nos = new HashSet<>();
+		for(SUITES s: SUITES.values()){
+			if(nos.contains(s.magicNumber()))
+				System.err.println("WARNING: Same magic number used twice!");
+			else
+				nos.add(s.magicNumber());
+		}
+	}
+	
+	private static final void add(@SuppressWarnings("rawtypes") Class suiteClass, SUITES s){
+		headers.add(suiteClass);
+		numbers.add(s.magicNumber());
+		descriptor.add(_T.valueOf("Suite_" + s.name()).val());
+		id.put(s.magicNumber(), s);
 	}
 	
 	public static final int numberFromClass(Suite header){

@@ -72,7 +72,7 @@ public class PGP_PrivatekeyDialog {
 		}
 
 		if(!succ){
-			UICenter.message(_T.PGP_privkeypasstitle.val());
+			UICenter.message(_T.PGP_privkey_wrongfile.val());
 			return;
 		}
 		

@@ -13,6 +13,7 @@ import org.crococryptfile.ui.gui.Page;
 import org.crococryptfile.ui.gui.PageActionparameters;
 import org.crococryptfile.ui.gui.PageLauncher;
 import org.crococryptfile.ui.gui.SimpleDialogs;
+import org.crococryptfile.ui.gui.PageLauncher.Options;
 import org.crococryptfile.ui.resources.ResourceCenter;
 import org.crococryptfile.ui.resources._T;
 import org.fhissen.callbacks.SimpleCallback;
@@ -24,6 +25,8 @@ public class Decrypt extends Page{
 	private enum OPT{
 		choose,
 		decrypt,
+		
+		infobutton,
 		
 		
 		folder,
@@ -83,12 +86,20 @@ public class Decrypt extends Page{
 		if(opt == null) opt = OPT.decrypt;
 		
 		switch (opt) {
+		case infobutton:
+			PageLauncher.launch(new Options(this), new InfoWindow());
+			return;
+
 		case choose:
+			if(cb.isDecryptRunning(this)) return;
+
 			this.pl = pl;
 			choose();
 			return;
 			
 		case decrypt:
+			if(cb.isDecryptRunning(this)) return;
+
 			String fstring = params.getString(OPT.folder);
 			if(fstring == null) return;
 			File tmpdst = new File(fstring);

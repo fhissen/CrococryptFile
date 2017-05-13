@@ -56,9 +56,17 @@ public class PBECloaked_AES2F_Main extends Suite {
 		if(params == null || params.size() == 0)  throw new IllegalArgumentException("PBE: no params specified");
 		pw = (char[])params.get(SuitePARAM.password);
 		if(pw == null) throw new IllegalArgumentException("PBE must specify a password");
+		
+		int itcount_ext = 0;
+		if(params.containsKey(SuitePARAM.itcount)){
+			try {
+				itcount_ext = Integer.parseInt((String)params.get(SuitePARAM.itcount));
+			} catch (Exception e) {}
+		}
 
 		if(mode == SuiteMODE.ENCRYPT){
-			key = PBECloaked_AES2F_PwToKeys.createPBE(pw);
+			key = PBECloaked_AES2F_PwToKeys.createPBE(pw, itcount_ext, getStatus());
+			
 			ciph = CipherMain.instance(CryptoUtils.toArray(BASECIPHER.TWOFISH, BASECIPHER.AES), key.two_plainkey, key.aes_plainkey);
 			
 			ATTRIBUTE_SALT = key.salt;

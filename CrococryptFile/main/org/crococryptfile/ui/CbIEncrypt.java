@@ -6,4 +6,5 @@ import org.crococryptfile.suites.SUITES;
 
 public interface CbIEncrypt{
 	public void callbackEncrypt(Object source, File destination, SUITES provider);
+	public boolean isEncryptRunning(Object source);
 }

@@ -2,6 +2,7 @@ package org.crococryptfile.suites;
 
 public enum SuitePARAM {
 	password,
+	itcount,
 	
 	capi_alias,
 	

@@ -18,9 +18,10 @@ public abstract class Suite {
 	
 	protected Suite(){}
 	
-	public final void init(SuiteMODE mode, HashMap<SuitePARAM, Object> params) throws IllegalArgumentException{
+	public final void init(SuiteMODE mode, HashMap<SuitePARAM, Object> params, StatusUpdate status) throws IllegalArgumentException{
 		if(mode == null) throw new IllegalArgumentException("no mode specified");
 		
+		this.status = status;
 		_init(mode, params);
 		
 		this.mode = mode;
@@ -69,11 +70,7 @@ public abstract class Suite {
 		return len;
 	}
 	
-	public final void setStatus(StatusUpdate status){
-		this.status = status;
-	}
-	
-	protected final StatusUpdate getStatus(){
+	public final StatusUpdate getStatus(){
 		return status;
 	}
 	
@@ -82,29 +79,62 @@ public abstract class Suite {
 		try {
 			return (Suite)(SUITES.classFromSuites(suite).newInstance());
 		} catch (Exception e) {
-			System.err.println(e.getLocalizedMessage());
+			System.err.println("getInstance: " + e.getLocalizedMessage());
 			return null;	
 		}
 	}
 
-	public static final Suite getInitializedInstance(SUITES suite, SuiteMODE mode, HashMap<SuitePARAM, Object> params){
+	public static final Suite getInitializedInstance(SUITES suite, SuiteMODE mode, HashMap<SuitePARAM, Object> params, StatusUpdate status){
 		try {
 			Suite instance = (Suite)(SUITES.classFromSuites(suite).newInstance());
-			instance.init(mode, params);
+			instance.init(mode, params, status);
 			return instance;
 		} catch (Exception e) {
-			System.err.println(e.getLocalizedMessage());
+			e.printStackTrace();
+			System.err.println("getInitializedInstance: " + e.getLocalizedMessage());
 			return null;	
 		}
 	}
 	
+	
+	public static final void getInitializedInstanceAsync(final SUITES suite, final SuiteMODE mode,
+			final HashMap<SuitePARAM, Object> params, final StatusUpdate status, final SuiteReceiver rec){
+		if(rec == null){
+			System.err.println("SuiteReceiver == null");
+			return;
+		}
+
+		if(suite == null){
+			System.err.println("Requested SUITES == null");
+			rec.receiveInitializedInstance(null);
+			return;
+		}
+		
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				try {
+					Suite instance = (Suite)(SUITES.classFromSuites(suite).newInstance());
+					instance.init(mode, params, status);
+					rec.receiveInitializedInstance(instance);
+				} catch (Exception e) {
+					e.printStackTrace();
+					System.err.println("getInitializedInstanceAsync: " + e.getLocalizedMessage());
+					rec.receiveInitializedInstance(null);
+				}
+			}
+		}).start();
+	}
+	
+	
 	public static final Suite getInitializedInstance(SUITES suite, SuiteMODE mode, SuitePARAM aparam, Object avalue){
 		HashMap<SuitePARAM, Object> params = new HashMap<>();
 		params.put(aparam, avalue);
-		return getInitializedInstance(suite, mode, params);
+		return getInitializedInstance(suite, mode, params, null);
 	}
 	
-	public static final Suite getInitializedInstance(SUITES suite, SuiteMODE mode){
-		return getInitializedInstance(suite, mode, null);
+
+	public interface SuiteReceiver{
+		public void receiveInitializedInstance(Suite suite);
 	}
 }

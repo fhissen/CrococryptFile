@@ -8,6 +8,7 @@ import javax.crypto.Mac;
 import org.crococryptfile.suites.pbecloakedaes2f.PBKDF2Interstep.InterstepChecker;
 import org.crococryptfile.ui.cui.CPrint;
 import org.fhissen.crypto.CryptoCodes;
+import org.fhissen.crypto.CryptoCodes.BASECIPHER;
 import org.fhissen.crypto.CryptoUtils;
 import org.fhissen.crypto.FSecretKeySpec;
 import org.fhissen.crypto.KeygenUtils;
@@ -40,8 +41,8 @@ public class PBECloaked_AES2F_PwToKeys {
 			pwkey_two = new byte[CryptoCodes.AES_KEYSIZE];
 			
 			try {
-				ciph_aes = Cipher.getInstance(CryptoCodes.CIPHER_AES_ECB_NoPad);
-				ciph_two = Cipher.getInstance(CryptoCodes.CIPHER_2FISH_ECB_NoPad);
+				ciph_aes = Cipher.getInstance(BASECIPHER.AES.getECB());
+				ciph_two = Cipher.getInstance(BASECIPHER.TWOFISH.getECB());
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -63,8 +64,8 @@ public class PBECloaked_AES2F_PwToKeys {
 				System.arraycopy(intermediate_key, CryptoCodes.AES_KEYSIZE, pwkey_two, 0, CryptoCodes.AES_KEYSIZE);
 			}
 
-			byte[] k_plain_aes = ecbRaw(pwkey_aes, CryptoCodes.CIPHER_AES_ECB_NoPad, false, ecbRaw(pwkey_two, CryptoCodes.CIPHER_2FISH_ECB_NoPad, false, key.aes_enckey));
-			byte[] k_plain_two = ecbRaw(pwkey_aes, CryptoCodes.CIPHER_AES_ECB_NoPad, false, ecbRaw(pwkey_two, CryptoCodes.CIPHER_2FISH_ECB_NoPad, false, key.two_enckey));
+			byte[] k_plain_aes = ecbRaw(pwkey_aes, BASECIPHER.AES.getECB(), false, ecbRaw(pwkey_two, BASECIPHER.TWOFISH.getECB(), false, key.aes_enckey));
+			byte[] k_plain_two = ecbRaw(pwkey_aes, BASECIPHER.AES.getECB(), false, ecbRaw(pwkey_two, BASECIPHER.TWOFISH.getECB(), false, key.two_enckey));
 
 			FSecretKeySpec fs_aes = new FSecretKeySpec(k_plain_aes);
 			FSecretKeySpec fs_two = new FSecretKeySpec(k_plain_two);
@@ -101,14 +102,26 @@ public class PBECloaked_AES2F_PwToKeys {
 
 	
 	public static final PBECloaked_AES2F_KeySet createPBE(char[] pw){
+		return createPBE(pw, 0, null);
+	}
+
+	public static final PBECloaked_AES2F_KeySet createPBE(char[] pw, int ext_its, StatusUpdate status){
 		try {
-			int its = BASE_ITERATIONCOUNT + ((int)(System.currentTimeMillis() % 10000));
+			int its = 0;
+			
+			if(ext_its <= 0)
+				its = BASE_ITERATIONCOUNT + ((int)(System.currentTimeMillis() % 10000));
+			else if(ext_its == 1)
+				its = 2;
+			else
+				its = ext_its;
+
 			byte[] s = CryptoUtils.randIv(CryptoCodes.STANDARD_SALTSIZE);
 			byte[] k_aes = new KeygenUtils().raw(CryptoCodes.AES_KEYSIZE_BITS);
 			byte[] k_two = new KeygenUtils().raw(CryptoCodes.AES_KEYSIZE_BITS);
 			
 			byte[] bbuf = ByteUtils.charsToBytes(pw);
-			byte[] pwkey = new PBKDF2(Mac.getInstance(CryptoCodes.HMAC_SHA512)).generateDerivedParameters(SECRET_SIZE_BITS, bbuf, s, its);
+			byte[] pwkey = new PBKDF2(Mac.getInstance(CryptoCodes.HMAC_SHA512), status).generateDerivedParameters(SECRET_SIZE_BITS, bbuf, s, its);
 			
 			byte[] pwkey_aes = new byte[CryptoCodes.AES_KEYSIZE];
 			byte[] pwkey_two = new byte[CryptoCodes.AES_KEYSIZE];
@@ -119,8 +132,8 @@ public class PBECloaked_AES2F_PwToKeys {
 			CryptoUtils.kill(bbuf, pwkey);
 			CryptoUtils.kill(pw);
 
-			byte[] k_enc_aes = ecbRaw(pwkey_two, CryptoCodes.CIPHER_2FISH_ECB_NoPad, true, ecbRaw(pwkey_aes, CryptoCodes.CIPHER_AES_ECB_NoPad, true, k_aes));
-			byte[] k_enc_two = ecbRaw(pwkey_two, CryptoCodes.CIPHER_2FISH_ECB_NoPad, true, ecbRaw(pwkey_aes, CryptoCodes.CIPHER_AES_ECB_NoPad, true, k_two));
+			byte[] k_enc_aes = ecbRaw(pwkey_two, BASECIPHER.TWOFISH.getECB(), true, ecbRaw(pwkey_aes, BASECIPHER.AES.getECB(), true, k_aes));
+			byte[] k_enc_two = ecbRaw(pwkey_two, BASECIPHER.TWOFISH.getECB(), true, ecbRaw(pwkey_aes, BASECIPHER.AES.getECB(), true, k_two));
 			
 			CryptoUtils.kill(pwkey_aes, pwkey_two);
 			its = (int) (System.currentTimeMillis() % Integer.MAX_VALUE);
@@ -154,8 +167,8 @@ public class PBECloaked_AES2F_PwToKeys {
 			System.arraycopy(pwkey, 0, pwkey_aes, 0, pwkey_aes.length);
 			System.arraycopy(pwkey, pwkey_aes.length, pwkey_two, 0, pwkey_two.length);
 			
-			byte[] k_plain_aes = ecbRaw(pwkey_aes, CryptoCodes.CIPHER_AES_ECB_NoPad, false, ecbRaw(pwkey_two, CryptoCodes.CIPHER_2FISH_ECB_NoPad, false, key.aes_enckey));
-			byte[] k_plain_two = ecbRaw(pwkey_aes, CryptoCodes.CIPHER_AES_ECB_NoPad, false, ecbRaw(pwkey_two, CryptoCodes.CIPHER_2FISH_ECB_NoPad, false, key.two_enckey));
+			byte[] k_plain_aes = ecbRaw(pwkey_aes, BASECIPHER.AES.getECB(), false, ecbRaw(pwkey_two, BASECIPHER.TWOFISH.getECB(), false, key.aes_enckey));
+			byte[] k_plain_two = ecbRaw(pwkey_aes, BASECIPHER.AES.getECB(), false, ecbRaw(pwkey_two, BASECIPHER.TWOFISH.getECB(), false, key.two_enckey));
 			
 			CryptoUtils.kill(pwkey_aes, pwkey_two);
 			CryptoUtils.kill(bbuf, pwkey);

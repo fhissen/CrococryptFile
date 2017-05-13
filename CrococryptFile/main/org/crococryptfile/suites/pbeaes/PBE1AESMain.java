@@ -20,7 +20,7 @@ public class PBE1AESMain extends Suite {
 	private byte[] ATTRIBUTE_SALT = new byte[CryptoCodes.STANDARD_SALTSIZE]; 
 	private byte[] ATTRIBUTE_KEY = new byte[CryptoCodes.AES_KEYSIZE]; 
 	private byte[] ATTRIBUTE_IV = new byte[CryptoCodes.STANDARD_IVSIZE]; 
-
+	
 	@Override
 	public final void deinit(){
 		if(key != null) key.deinit();
@@ -52,15 +52,24 @@ public class PBE1AESMain extends Suite {
 	private char[] pw;
 	
 
+	protected BASECIPHER cipherCode = BASECIPHER.AES;
+	
 	@Override
 	protected void _init(SuiteMODE mode, HashMap<SuitePARAM, Object> params) throws IllegalArgumentException{
 		if(params == null || params.size() == 0)  throw new IllegalArgumentException("PBE: no params specified");
 		pw = (char[])params.get(SuitePARAM.password);
 		if(pw == null) throw new IllegalArgumentException("PBE must specify a password");
-
+		
+		int itcount_ext = 0;
+		if(params.containsKey(SuitePARAM.itcount)){
+			try {
+				itcount_ext = Integer.parseInt((String)params.get(SuitePARAM.itcount));
+			} catch (Exception e) {}
+		}
+		
 		if(mode == SuiteMODE.ENCRYPT){
-			key = PBE1PwToKey.createPBE(pw);
-			ciph = CipherMain.instance(BASECIPHER.AES, key.plainkey);
+			key = PBE1PwToKey.createPBE(pw, itcount_ext, getStatus());
+			ciph = CipherMain.instance(cipherCode, key.plainkey);
 			
 			ATTRIBUTE_ITERATIONCOUNT = key.its;
 			ATTRIBUTE_SALT = key.salt;
@@ -99,10 +108,9 @@ public class PBE1AESMain extends Suite {
 			key.its = ATTRIBUTE_ITERATIONCOUNT;
 			key.salt = ATTRIBUTE_SALT;
 			
+			PBE1PwToKey.loadPBE(pw, key, getStatus());
 
-			PBE1PwToKey.loadPBE(pw, key);
-
-			ciph = CipherMain.instance(BASECIPHER.AES, key.plainkey);
+			ciph = CipherMain.instance(cipherCode, key.plainkey);
 		}
 		
 		ATTRIBUTE_IV = ciph.doDec_ECB(ATTRIBUTE_IV);

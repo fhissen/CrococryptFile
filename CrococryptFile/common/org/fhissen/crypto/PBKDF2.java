@@ -8,15 +8,19 @@ package org.fhissen.crypto;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
+import org.fhissen.utils.ui.StatusUpdate;
+
 
 public class PBKDF2 {
 	private Mac hMac;
 	private byte[] state;
 	private FSecretKeySpec key;
+	private StatusUpdate status;
 
-	public PBKDF2(Mac mac) {
+	public PBKDF2(Mac mac, StatusUpdate status) {
 		hMac = mac;
 		state = new byte[hMac.getMacLength()];
+		this.status = status;
 	}
 
 	private void F(byte[] S, int c, byte[] iBuf, byte[] out, int outOff) {
@@ -30,7 +34,7 @@ public class PBKDF2 {
 
 			System.arraycopy(state, 0, out, outOff, state.length);
 
-			for (int count = 1; count < c; count++) {
+			for (int count = 1; count < c && (status == null || status.isActive()); count++) {
 				hMac.update(state, 0, state.length);
 				hMac.doFinal(state, 0);
 
@@ -54,7 +58,7 @@ public class PBKDF2 {
 			key = new FSecretKeySpec(password, "AES");
 			hMac.init(key);
 
-			for (int i = 1; i <= l; i++) {
+			for (int i = 1; i <= l && (status == null || status.isActive()); i++) {
 				int pos = 3;
 				while (++iBuf[pos] == 0) {
 					--pos;

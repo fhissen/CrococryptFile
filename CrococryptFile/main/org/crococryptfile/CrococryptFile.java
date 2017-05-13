@@ -14,6 +14,7 @@ import org.crococryptfile.datafile.CrocoFilewriter;
 import org.crococryptfile.suites.BasicFileinfo;
 import org.crococryptfile.suites.SUITES;
 import org.crococryptfile.suites.Suite;
+import org.crococryptfile.suites.Suite.SuiteReceiver;
 import org.crococryptfile.suites.SuiteMODE;
 import org.crococryptfile.suites.SuitePARAM;
 import org.crococryptfile.ui.CbIDecrypt;
@@ -29,6 +30,7 @@ import org.crococryptfile.ui.gui.Page;
 import org.crococryptfile.ui.gui.PageLauncher;
 import org.crococryptfile.ui.gui.PageLauncher.Options;
 import org.crococryptfile.ui.gui.PasswordCreatedialog;
+import org.crococryptfile.ui.gui.PasswordCreatedialogWithOptions;
 import org.crococryptfile.ui.gui.PasswordInputdialog;
 import org.crococryptfile.ui.gui.ProgressDoubleWindow;
 import org.crococryptfile.ui.gui.ProgressWindow;
@@ -133,7 +135,7 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 
 	@SuppressWarnings("unchecked")
 	public void main(){
-		if(UICenter.isCUI() && (inputparams.destination == null || inputparams.filesanddirs == null || inputparams.filesanddirs.size() == 0)){
+		if(UICenter.isCUI() && (inputparams == null || inputparams.destination == null || inputparams.filesanddirs == null || inputparams.filesanddirs.size() == 0)){
 			CPrint.line("Invalid or insufficient options. Possible commandline options are:\n");
 			CPrint.line("java -jar crococryptfile.jar [OPTIONS] [files & directories]");
 			for(ConsoleOptions_Params param: ConsoleOptions_Params.values())
@@ -393,6 +395,20 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 		retrieveOperationParams();
 	}
 	
+	@Override
+	public boolean isDecryptRunning(Object source) {
+		if(source == currentSource && cur == STATE.decrypt)
+			return true;
+		return false;
+	}
+	
+	@Override
+	public boolean isEncryptRunning(Object source) {
+		if(source == currentSource && cur == STATE.encrypt)
+			return true;
+		return false;
+	}
+	
 	private void prepareEncryptParams(SUITES suite){
 		reqparams = suite.getEncryptParameters();
 		reqparams_index = 0;
@@ -445,7 +461,8 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 				switch (theparam) {
 				case password:
 					if(UICenter.isGUI())
-						new PasswordCreatedialog(currentSource).main(this);
+						
+						new PasswordCreatedialogWithOptions(currentSource).main(this);
 					else
 						new PasswordCreateConsole().main(this);
 					break;
@@ -479,8 +496,19 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 		if(source instanceof Class) c = (Class) source;
 		else c = source.getClass();
 		
-		if(c == PasswordCreatedialog.class || c == PasswordCreateConsole.class || c == PasswordInputdialog.class || c == PasswordInputConsole.class){
-			operationParams.put(SuitePARAM.password, value);
+		if(c == PasswordCreatedialog.class || c == PasswordCreatedialogWithOptions.class || c == PasswordCreateConsole.class
+				|| c == PasswordInputdialog.class || c == PasswordInputConsole.class){
+			if(value instanceof HashMap){
+				HashMap hm = (HashMap) value;
+				if(hm.isEmpty()) return;
+				
+				if(hm.keySet().iterator().next() instanceof SuitePARAM){
+					operationParams.putAll(hm);
+				}
+			}
+			else{
+				operationParams.put(SuitePARAM.password, value);
+			}
 		}
 		else if(c == CAPI_DNList.class){
 			operationParams.put(SuitePARAM.capi_alias, value);
@@ -579,29 +607,82 @@ public class CrococryptFile implements CbIEncrypt, CbIDecrypt, SimpleCallback{
 			}
 		}
 	}
-
+	
 	private void doEncrypt(){
-		Suite instance = Suite.getInitializedInstance(inputparams.suite, SuiteMODE.ENCRYPT, operationParams);
-		StatusUpdate stat = null;
+		final StatusUpdate stat;
 		if(UICenter.isGUI()){
 			stat = new ProgressDoubleWindow(((Page)currentSource).getPageLauncher().getWindow()).prepare();
 		}
 		else if(inputparams.verboseconsole){
 			stat = new StatusConsole();
 		}
+		else{
+			stat = null;
+		}
+
+		if(stat != null){
+			stat.start();
+			stat.receiveMessageSummary(_T.Password_PBEinProgress.val());
+		}
 		
-		new CrocoFilewriter(successcb, instance, inputparams.filesanddirs.toArray(new File[]{}), inputparams.destination).execute(stat);
+		Suite.getInitializedInstanceAsync(inputparams.suite, SuiteMODE.ENCRYPT, operationParams, stat, new SuiteReceiver() {
+			@Override
+			public void receiveInitializedInstance(Suite suite) {
+				if(suite == null) {
+					UICenter.message("Fatal error while initializing ENCRYPTION.");
+					System.exit(-12);
+				}
+				
+				StatusUpdate status = suite.getStatus();
+				if(status == null || status.isActive())
+					new CrocoFilewriter(successcb, suite, inputparams.filesanddirs.toArray(new File[]{}), inputparams.destination).execute(stat);
+				else{
+					try {
+						if(successcb != null) successcb.callbackValue(this, SUCCESS.CANCEL);
+						if(stat != null) stat.finished();
+						if(suite != null) suite.deinit();
+					} catch (Exception e) {}
+				}
+			}
+		});
 	}
 	
 	private void doDecrypt(){
-		Suite instance = Suite.getInitializedInstance(inputparams.suite, SuiteMODE.DECRYPT, operationParams);
-		StatusUpdate stat = null;
+		final StatusUpdate stat;
 		if(UICenter.isGUI()){
 			stat = new ProgressWindow(((Page)currentSource).getPageLauncher().getWindow()).prepare();
 		}
 		else if(inputparams.verboseconsole){
 			stat = new StatusConsole();
 		}
-		new CrocoFilereader(successcb, instance, inputparams.filesanddirs.get(0), inputparams.destination).execute(stat);
+		else{
+			stat = null;
+		}
+
+		if(stat != null){
+			stat.start();
+			stat.receiveMessageSummary(_T.Password_PBEinProgress.val());
+		}
+
+		Suite.getInitializedInstanceAsync(inputparams.suite, SuiteMODE.DECRYPT, operationParams, stat, new SuiteReceiver() {
+			@Override
+			public void receiveInitializedInstance(Suite suite) {
+				if(suite == null) {
+					UICenter.message("Fatal error while initializing DECRYPTION.");
+					System.exit(-12);
+				}
+
+				StatusUpdate status = suite.getStatus();
+				if(status == null || status.isActive())
+					new CrocoFilereader(successcb, suite, inputparams.filesanddirs.get(0), inputparams.destination).execute(stat);
+				else{
+					try {
+						if(successcb != null) successcb.callbackValue(this, SUCCESS.CANCEL);
+						if(stat != null) stat.finished();
+						if(suite != null) suite.deinit();
+					} catch (Exception e) {}
+				}
+			}
+		});
 	}
 }

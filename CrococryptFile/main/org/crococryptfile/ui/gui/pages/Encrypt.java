@@ -15,6 +15,7 @@ import org.crococryptfile.ui.gui.FileSelectdialog;
 import org.crococryptfile.ui.gui.Page;
 import org.crococryptfile.ui.gui.PageActionparameters;
 import org.crococryptfile.ui.gui.PageLauncher;
+import org.crococryptfile.ui.gui.PageLauncher.Options;
 import org.crococryptfile.ui.resources.ResourceCenter;
 import org.crococryptfile.ui.resources._T;
 import org.fhissen.callbacks.SimpleCallback;
@@ -26,6 +27,8 @@ public class Encrypt extends Page{
 	private enum OPT{
 		choose,
 		encrypt,
+		
+		infobutton,
 		
 		
 		provider,
@@ -130,12 +133,20 @@ public class Encrypt extends Page{
 		if(opt == null) opt = OPT.encrypt;
 		
 		switch (opt) {
+		case infobutton:
+			PageLauncher.launch(new Options(this), new InfoWindow());
+			return;
+			
 		case choose:
+			if(cb.isEncryptRunning(this)) return;
+
 			this.pl = pl;
 			choose();
 			return;
 
 		case encrypt:
+			if(cb.isEncryptRunning(this)) return;
+
 			SUITES suitex = SystemUtils.s2E(params.getString(OPT.provider), SUITES.class);
 			if(suitex != null){
 				co.suite = suitex;
