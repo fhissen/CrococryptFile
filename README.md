@@ -3,7 +3,7 @@ An open-source tool for creating encrypted file archives on Windows(XP-10)/Linux
 
 Official homepage & More information: http://www.frankhissen.de/crococryptfile.html
 
-All download packages: https://github.com/fhissen/CrococryptFile/releases ([More details](http://www.frankhissen.de/crococryptfile-download-en-frank-hissen-it-software.html))
+For download packages, binary releases, setups & installers visit: ([CrococryptFile Download Page](http://www.frankhissen.de/crococryptfile-download-en-frank-hissen-it-software.html))
 
 ## Crypto Suites
 
