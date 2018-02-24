@@ -1,9 +1,9 @@
 # CrococryptFile
 An open-source tool for creating encrypted file archives on Windows(XP-10)/Linux/Mac
 
-Official homepage & More information: http://www.frankhissen.de/crococryptfile.html
+Official homepage & More information: https://www.frankhissen.de/crococryptfile.html
 
-For download packages, binary releases, setups & installers visit: [CrococryptFile Download Page](http://www.frankhissen.de/crococryptfile-download-en-frank-hissen-it-software.html)
+For download packages, binary releases, setups & installers visit: [CrococryptFile Download Page](https://www.frankhissen.de/crococryptfile-download-en-frank-hissen-it-software.html)
 
 ## Crypto Suites
 
@@ -18,4 +18,4 @@ The following crypto suites are currently included:
 * Cloaked (headerless) Password based Encryption (AES-Twofish-256)
 * Cloaked (headerless) Password based Encryption (AES-Twofish-256) padded to multiples of 1MB but also allows for arbitrary size
 
-We have written a short article to describe [how cloaked files](http://www.frankhissen.de/introducing-cloaked-headerless-files-crococryptfile-13-released-frank-hissen-it-blog.html "Introducing cloaked (headerless) files") work.
+We have written a short article to describe [how cloaked files](https://www.frankhissen.de/introducing-cloaked-headerless-files-crococryptfile-13-released-frank-hissen-it-blog.html "Introducing cloaked (headerless) files") work.
