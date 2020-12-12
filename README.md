@@ -19,3 +19,5 @@ The following crypto suites are currently included:
 * Cloaked (headerless) Password based Encryption (AES-Twofish-256) padded to multiples of 1MB but also allows for arbitrary size
 
 We have written a short article to describe [how cloaked files](https://www.frankhissen.de/introducing-cloaked-headerless-files-crococryptfile-13-released-frank-hissen-it-blog.html "Introducing cloaked (headerless) files") work.
+
+.
