@@ -1,5 +1,5 @@
 # CrococryptFile
-An open-source tool for creating encrypted file archives on Windows(XP-10)/Linux/Mac
+An open-source tool for creating encrypted file archives on Windows(XP-11)/Linux/Mac
 
 Official homepage & More information: https://www.hissenit.com/crococryptfile.html
 
